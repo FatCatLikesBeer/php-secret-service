@@ -2,22 +2,17 @@
 
 declare(strict_types=1);
 
-include("./router.php");
+include('./router.php');
+include('./lib/controller.php');
 
-get("/", function () {
-  include("./template/top.html");
-?>
-  <p>I'm outside of the php block</p>
-<?php
-  include("./template/bottom.html");
+// API Routing
+get('/api/v0', function () {
+  route_not_used();
 });
 
-get("/test", function () {
-  include("./template/top.html");
-?>
-  <p>Test function</p>
-<?php
-  include("./template/bottom.html");
+get('/api/v0/messages/$uuid', function ($uuid) {
+  get_message($uuid);
 });
 
-any("/404", "./views/404.php");
+// Create tables first before moving forward.
+// Come up with an analogy or something
