@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-include "./lib/response.php";
+include(__DIR__ . "/../lib/response.php");
+include(__DIR__ . "/../lib/uuid_generator.php");
 
 function echo_slug($slug)
 {
@@ -16,5 +17,6 @@ function route_not_used()
 
 function get_message($uuid)
 {
-  include(__DIR__ . "/database.php");
+  echo uuid_generator() . "\n";
+  include(__DIR__ . "/../lib/database.php");
 }

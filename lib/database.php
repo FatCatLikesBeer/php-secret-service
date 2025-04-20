@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
+$db = new PDO("sqlite:" . __DIR__ . "/../models/my_base.sqlite");
+
 $queries = [
-  "get_message" => "SELECT message FROM test WHERE id = 1",
+  "test" => "SELECT * FROM test WHERE id = ?",
+  "retrieve_envelope" => "// CHECK IF ENVELOP EXISTS, RETURN ",
+  "open_envelope" => "// RETURN LETTER, SET ENVELOPE TO OPENED, DELETE LETTER FROM ENVELOPE",
 ];
 
-$db = new PDO("sqlite:" . __DIR__ . "/my_base.sqlite");
-$query = $db->query($queries["get_message"]);
-$result = $query->fetchAll();
+$prep_statement = $db->prepare($queries["test"]); // Creates an object with a prepared statement
+$prep_statement->execute(["2"]);                  // Object executes prepared statement with arguments
+$result = $prep_statement->fetchAll();            // Object returns preped statement results
 header("Content-Type: application/json");
 echo $result[0]["message"];

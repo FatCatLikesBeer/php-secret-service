@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 include('./router.php');
-include('./lib/controller.php');
+include('./controllers/controller.php');
 
 // API Routing
 get('/api/v0', function () {
