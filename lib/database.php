@@ -8,10 +8,42 @@ $queries = [
   "test" => "SELECT * FROM test WHERE id = ?",
   "retrieve_envelope" => "// CHECK IF ENVELOP EXISTS, RETURN ",
   "open_envelope" => "// RETURN LETTER, SET ENVELOPE TO OPENED, DELETE LETTER FROM ENVELOPE",
+  "create_envelope" => "
+  INSERT INTO envelopes
+  (uuid, writer, writer_email, reader, reader_email, expires, letter)
+  values (?, ?, ?, ?, ?, ?, ?)",
 ];
 
-$prep_statement = $db->prepare($queries["test"]); // Creates an object with a prepared statement
-$prep_statement->execute(["2"]);                  // Object executes prepared statement with arguments
-$result = $prep_statement->fetchAll();            // Object returns preped statement results
-header("Content-Type: application/json");
-echo $result[0]["message"];
+/* $prep_statement = $db->prepare($queries["test"]); // Creates an object with a prepared statement */
+/* $prep_statement->execute(["2"]);                  // Object executes prepared statement with arguments */
+/* $result = $prep_statement->fetchAll();            // Object returns preped statement results */
+
+/**
+ * Create an envelope to database
+ *
+ * @param string $uuid The UUID
+ * @param string|null $writer Name of message writer
+ * @param string|null $writer_email Email of message writer
+ * @param string|null $reader Name of message recipient
+ * @param string|null $reader_email Email of message recipient
+ * @param string $expires Hours until message expires
+ * @param string $message Message content
+ */
+function envelope_create(
+  string $uuid,
+  string|NULL $writer,
+  string|NULL $writer_email,
+  string|NULL $reader,
+  string|NULL $reader_email,
+  string $expires,
+  string $message,
+): string {
+  // Turn expires into unix time
+  // Add unix timestamp
+  /* global $db; */
+  /* global $queries; */
+  /* $stmt = $db->prepare($queries["create_envelope"]); */
+  /* $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message]); */
+  /* $result = $stmt->fetchObject(); */
+  /* return $result; */
+}

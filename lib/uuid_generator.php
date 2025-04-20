@@ -6,6 +6,11 @@ function digit_selector(): string
   return strval($digit);
 }
 
+/**
+ * uuid_generator
+ *
+ * @return string 16 char long ID
+ */
 function uuid_generator(): string
 {
   include(__DIR__ . "/../lib/words.php");
