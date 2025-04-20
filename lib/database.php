@@ -10,8 +10,8 @@ $queries = [
   "open_envelope" => "// RETURN LETTER, SET ENVELOPE TO OPENED, DELETE LETTER FROM ENVELOPE",
   "create_envelope" => "
   INSERT INTO envelopes
-  (uuid, writer, writer_email, reader, reader_email, expires, letter)
-  values (?, ?, ?, ?, ?, ?, ?)",
+  (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
+  values (?, ?, ?, ?, ?, ?, ?, ?)",
 ];
 
 /* $prep_statement = $db->prepare($queries["test"]); // Creates an object with a prepared statement */
@@ -37,13 +37,17 @@ function envelope_create(
   string|NULL $reader_email,
   string $expires,
   string $message,
-): string {
-  // Turn expires into unix time
-  // Add unix timestamp
-  /* global $db; */
-  /* global $queries; */
-  /* $stmt = $db->prepare($queries["create_envelope"]); */
-  /* $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message]); */
-  /* $result = $stmt->fetchObject(); */
-  /* return $result; */
+): array {
+  try {
+    global $db;
+    global $queries;
+    $created_at = time();
+    $expires_at = $created_at + (intval($expires) * 60 * 60);
+    $stmt = $db->prepare($queries["create_envelope"]);
+    $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $message]);
+    $stmt->fetch();
+    return ["success" => true, "message" => "success"];
+  } catch (Exception $e) {
+    return ["success" => false, "message" => $e->getMessage()];
+  }
 }

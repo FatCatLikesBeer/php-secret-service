@@ -26,7 +26,11 @@ function create_message(
 ): string {
   $uuid = uuid_generator();
   $result = envelope_create($uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message);
-  return $result;
+  if ($result["success"]) {
+    return "Message created!";
+  } else {
+    return "Message failed!";
+  }
 }
 
 function get_message(): void

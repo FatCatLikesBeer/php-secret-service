@@ -26,12 +26,12 @@ post('/api/v0/messages', function () {
     if (is_null($message)) {
       throw new Exception("Message required");
     }
+    if (intval($expires) < 1) {
+      throw new Exception("Expiration too small");
+    }
     $result = create_message($writer, $writer_email, $reader, $reader_email, $expires, $message);
-    echo new Response($result)->sendJSON();
+    echo new Response($result, true, 200)->sendJSON();
   } catch (Exception $e) {
     echo new Response($e->getMessage(), false, 400)->sendJSON();
   }
 });
-
-// Create tables first before moving forward.
-// Come up with an analogy or something

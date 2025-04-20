@@ -11,7 +11,7 @@ class Response
   public string $message;
   public int $status;
 
-  function __construct(string $message, bool $success = false, int $status = 200)
+  function __construct(string $message, bool $success = false, int $status = 500)
   {
     $this->success = $success;
     $this->message = $message;
