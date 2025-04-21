@@ -17,13 +17,27 @@ function uuid_generator(): string
   $length = count($words);
   $head_index = rand(0, $length - 1);
   $body_index = rand(0, $length - 1);
+  $tail_placement = rand(0, 2);
+  $result = "";
 
+  // Create parts of UUID
   $head = rand(0, 1) === 1 ? $words[$head_index] : strtolower($words[$head_index]);
   $body = rand(0, 1) === 1 ? $words[$body_index] : strtolower($words[$body_index]);
   $tail = "";
 
+  // Construct Tail
   for ($i = 0; $i < 4; $i++) {
     $tail .= digit_selector();
   }
-  return $head . $body . $tail;
+
+  // Arrange placement
+  if (0 == $tail_placement) {
+    $result = "{$head}{$body}{$tail}";
+  } elseif (1 == $tail_placement) {
+    $result = "{$head}{$tail}{$body}";
+  } else {
+    $result = "{$tail}{$head}{$body}";
+  }
+
+  return $result;
 }

@@ -37,7 +37,7 @@ function envelope_create(
   string|NULL $reader_email,
   string $expires,
   string $message,
-): array {
+): InternalMessage {
   try {
     global $db;
     global $queries;
@@ -46,8 +46,8 @@ function envelope_create(
     $stmt = $db->prepare($queries["create_envelope"]);
     $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $message]);
     $stmt->fetch();
-    return ["success" => true, "message" => "success"];
-  } catch (Exception $e) {
-    return ["success" => false, "message" => $e->getMessage()];
+    return new InternalMessage(true, "Message saved!");
+  } catch (Exception $err) {
+    return new InternalMessage(false, "Database Error {$err}");
   }
 }

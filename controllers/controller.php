@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-include(__DIR__ . "/../lib/response.php");
-include(__DIR__ . "/../lib/uuid_generator.php");
-include(__DIR__ . "/../lib/database.php");
-
 function echo_slug($slug)
 {
   echo new Response($slug)->sendJSON();
@@ -23,18 +19,17 @@ function create_message(
   string|NULL $reader_email,
   string $expires,
   string $message,
-): string {
+): InternalMessage {
   $uuid = uuid_generator();
   $result = envelope_create($uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message);
-  if ($result["success"]) {
-    return "Message created!";
+  if ($result->success) {
+    return new InternalMessage(true, $uuid);
   } else {
-    return "Message failed!";
+    return new InternalMessage(false, $result->message);
   }
 }
 
 function get_message(): void
 {
-  echo uuid_generator() . "\n";
-  /* include(__DIR__ . "/../lib/database.php"); */
+  echo (uuid_generator() . "\n");
 }
