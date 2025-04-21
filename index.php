@@ -15,6 +15,50 @@ $reader_email = $_GET["reader_email"] ?? NULL;
 $expires = $_GET["expires"] ?? "24";
 $message = $_GET["message"] ?? NULL;
 
+// Pre routing validation
+try {
+  if (is_null($message)) {
+    throw new Exception("Message required.", 400);
+  }
+
+  if ($writer_email) {
+    if (!filter_var($writer_email, FILTER_VALIDATE_EMAIL)) {
+      throw new Exception("Writer's email is invalid.", 400);
+    }
+  }
+
+  if ($reader_email) {
+    if (!filter_var($reader_email, FILTER_VALIDATE_EMAIL)) {
+      throw new Exception("Reader's email is invalid.", 400);
+    }
+  }
+
+  if ($writer) {
+    if (2 > strlen($writer)) {
+      throw new Exception("Writer's name is too short.", 400);
+    }
+    if (is_null($writer_email)) {
+      throw new Exception("Writer's email is required.", 400);
+    }
+  }
+
+  if ($reader) {
+    if (2 > strlen($reader)) {
+      throw new Exception("Reader's name is too short.", 400);
+    }
+    if (is_null($reader_email)) {
+      throw new Exception("Reader's email is required.", 400);
+    }
+  }
+
+  if (intval($expires) < 1) {
+    throw new Exception("Expiration length too small.", 400);
+  }
+} catch (Exception $err) {
+  new Response($err->getMessage(), false, $err->getCode())->sendJSON();
+  return;
+}
+
 // API Routing
 post('/api/v0/messages', function () use (
   $writer,
@@ -25,28 +69,6 @@ post('/api/v0/messages', function () use (
   $message
 ) {
   try {
-    // Following four are validation
-    if (is_null($message)) {
-      throw new Exception("Message required.", 400);
-    }
-
-    if (intval($expires) < 1) {
-      throw new Exception("Expiration length too small.", 400);
-    }
-
-    if (!is_null($writer_email)) {
-      if (!filter_var($writer_email, FILTER_VALIDATE_EMAIL)) {
-        throw new Exception("Sender email is invalid.", 400);
-      }
-    }
-
-    if (!is_null($reader_email)) {
-      if (!filter_var($reader_email, FILTER_VALIDATE_EMAIL)) {
-        throw new Exception("Recipient email is invalid.", 400);
-      }
-    }
-
-    // Write to DB
     $result = create_message($writer, $writer_email, $reader, $reader_email, $expires, $message);
 
     if (!$result->success) {
@@ -63,8 +85,8 @@ post('/api/v0/messages', function () use (
     ];
 
     new Response("Message Saved!", true, 200, $data)->sendJSON();
-  } catch (Exception $e) {
-    new Response($e->getMessage(), false, $e->getCode())->sendJSON();
+  } catch (Exception $err) {
+    new Response($err->getMessage(), false, $err->getCode())->sendJSON();
   }
 });
 
