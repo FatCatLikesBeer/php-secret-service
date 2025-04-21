@@ -43,9 +43,16 @@ class InternalMessage
 {
   public bool $success;
   public string $message;
-  function __construct(bool $success, string $message)
-  {
+  public array|null $data;
+  function __construct(
+    bool $success,
+    string $message,
+    array|null $data = null
+  ) {
     $this->success = $success;
     $this->message = $message;
+    if (!is_null($data)) {
+      $this->data = $data;
+    }
   }
 }

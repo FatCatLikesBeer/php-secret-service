@@ -16,47 +16,49 @@ $expires = $_GET["expires"] ?? "24";
 $message = $_GET["message"] ?? NULL;
 
 // Pre routing validation
-try {
-  if (is_null($message)) {
-    throw new Exception("Message required.", 400);
-  }
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  try {
+    if (is_null($message)) {
+      throw new Exception("Message required.", 400);
+    }
 
-  if ($writer_email) {
-    if (!filter_var($writer_email, FILTER_VALIDATE_EMAIL)) {
-      throw new Exception("Writer's email is invalid.", 400);
+    if ($writer_email) {
+      if (!filter_var($writer_email, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception("Writer's email is invalid.", 400);
+      }
     }
-  }
 
-  if ($reader_email) {
-    if (!filter_var($reader_email, FILTER_VALIDATE_EMAIL)) {
-      throw new Exception("Reader's email is invalid.", 400);
+    if ($reader_email) {
+      if (!filter_var($reader_email, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception("Reader's email is invalid.", 400);
+      }
     }
-  }
 
-  if ($writer) {
-    if (2 > strlen($writer)) {
-      throw new Exception("Writer's name is too short.", 400);
+    if ($writer) {
+      if (2 > strlen($writer)) {
+        throw new Exception("Writer's name is too short.", 400);
+      }
+      if (is_null($writer_email)) {
+        throw new Exception("Writer's email is required.", 400);
+      }
     }
-    if (is_null($writer_email)) {
-      throw new Exception("Writer's email is required.", 400);
-    }
-  }
 
-  if ($reader) {
-    if (2 > strlen($reader)) {
-      throw new Exception("Reader's name is too short.", 400);
+    if ($reader) {
+      if (2 > strlen($reader)) {
+        throw new Exception("Reader's name is too short.", 400);
+      }
+      if (is_null($reader_email)) {
+        throw new Exception("Reader's email is required.", 400);
+      }
     }
-    if (is_null($reader_email)) {
-      throw new Exception("Reader's email is required.", 400);
-    }
-  }
 
-  if (intval($expires) < 1) {
-    throw new Exception("Expiration length too small.", 400);
+    if (intval($expires) < 1) {
+      throw new Exception("Expiration length too small.", 400);
+    }
+  } catch (Exception $err) {
+    new Response($err->getMessage(), false, $err->getCode())->sendJSON();
+    return;
   }
-} catch (Exception $err) {
-  new Response($err->getMessage(), false, $err->getCode())->sendJSON();
-  return;
 }
 
 // API Routing
@@ -69,7 +71,7 @@ post('/api/v0/messages', function () use (
   $message
 ) {
   try {
-    $result = create_message($writer, $writer_email, $reader, $reader_email, $expires, $message);
+    $result = address_envelope($writer, $writer_email, $reader, $reader_email, $expires, $message);
 
     if (!$result->success) {
       throw new Exception("Database Error, potential ID conflict, please try again.", 500);
@@ -91,9 +93,24 @@ post('/api/v0/messages', function () use (
 });
 
 get('/api/v0/messages/$uuid', function ($uuid) {
-  get_message($uuid);
+  try {
+    if (16 != strlen($uuid)) {
+      throw new Exception("Invalid message ID", 400);
+    }
+
+    $result = get_envelope($uuid);
+    if (!$result->success) {
+      throw new Exception("No envelope found", 400);
+    }
+
+    new Response("Envelope Found", true, 200, $result->data)->sendJSON();
+  } catch (Exception $err) {
+    new Response($err->getMessage(), false, $err->getCode())->sendJSON();
+  }
 });
 
 get('/api/v0', function () {
   route_not_used();
 });
+
+// Either work on encryption or work on API unseal envelope

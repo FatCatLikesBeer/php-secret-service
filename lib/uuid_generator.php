@@ -48,8 +48,12 @@ function case_picker(string $word): string
 }
 
 /**
- * uuid_generator
- * @return string 16 char long ID
+ * UUID Generator
+ * Generates a UUID consisting of 2 six character long
+ * words and 4 digits. Each word selected from a pool
+ * of 5100 words and can come in 3 different cases. Digits
+ * have 4 different possible positions.
+ * @return string 16 char long UUID
  */
 function uuid_generator(): string
 {

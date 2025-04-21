@@ -23,7 +23,7 @@ function route_not_used()
  * @param string $message Content of letter
  * @return InternalMessage - Internal messaging object
  */
-function create_message(
+function address_envelope(
   string|NULL $writer,
   string|NULL $writer_email,
   string|NULL $reader,
@@ -32,14 +32,17 @@ function create_message(
   string $message,
 ): InternalMessage {
   $uuid = uuid_generator();
-  $result = envelope_create($uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message);
+  $result = envelope_to_database($uuid, $writer, $writer_email, $reader, $reader_email, $expires, $message);
   return new InternalMessage($result->success, $result->success ? $uuid : $result->message);
 }
 
 /**
- * Retrieves message from database
+ * Retrieves envelope from database
+ * @param string $uuid UUID of envelope
+ * @return InternalMessage - Internal messaging object
  */
-function get_message(string $uuid): string
+function get_envelope(string $uuid): InternalMessage
 {
-  return "Message {$uuid}";
+  $result = check_if_envelope_exists($uuid);
+  return new InternalMessage($result->success, $result->message, $result->data ?? null);
 }

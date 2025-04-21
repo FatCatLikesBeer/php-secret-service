@@ -6,8 +6,8 @@ $db = new PDO("sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
 $queries = [
   "test" => "SELECT * FROM test WHERE id = ?",
-  "retrieve_envelope" => "// CHECK IF ENVELOP EXISTS, RETURN ",
-  "open_envelope" => "// RETURN LETTER, SET ENVELOPE TO OPENED, DELETE LETTER FROM ENVELOPE",
+  "check_if_envelope_exists" => "SELECT opened, reader, writer FROM envelopes WHERE uuid = ?",
+  "unseal_envelope" => "SELECT * FROM envelopes WHERE uuid = ?",
   "create_envelope" => "
   INSERT INTO envelopes
   (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
@@ -24,7 +24,7 @@ $queries = [
  * @param string $expires Hours until message expires
  * @param string $message Message content
  */
-function envelope_create(
+function envelope_to_database(
   string $uuid,
   string|NULL $writer,
   string|NULL $writer_email,
@@ -42,6 +42,34 @@ function envelope_create(
     $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $message]);
     $stmt->fetch();
     return new InternalMessage(true, "Message saved!");
+  } catch (Exception $err) {
+    return new InternalMessage(false, "Database Error: {$err}");
+  }
+}
+
+/**
+ * Checks if envelope with uuid exists
+ * @param string $uuid UUID of envelope
+ * @return InternalMessage
+ */
+function check_if_envelope_exists(
+  string $uuid,
+): InternalMessage {
+  global $db;
+  global $queries;
+  try {
+    $stmt = $db->prepare($queries["check_if_envelope_exists"]);
+    $stmt->execute([$uuid]);
+    $column = $stmt->fetch();
+    if (!is_array($column)) {
+      throw new Exception("Envelope not found");
+    }
+    $data = [
+      "opened" => $column["opened"] == "0" ? false : true,
+      "reader" => $column["reader"],
+      "writer" => $column["writer"],
+    ];
+    return new InternalMessage(true, "Envelope Found", $data);
   } catch (Exception $err) {
     return new InternalMessage(false, "Database Error: {$err}");
   }
