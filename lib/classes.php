@@ -30,12 +30,12 @@ class Response
     }
   }
 
-  public function sendJSON(): string | false
+  public function sendJSON(): void
   {
     $result = json_encode($this);
     header("Content-Type: application/json");
     http_response_code($this->status);
-    return $result;
+    echo $result;
   }
 }
 

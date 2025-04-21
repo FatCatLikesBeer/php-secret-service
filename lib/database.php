@@ -14,13 +14,8 @@ $queries = [
   values (?, ?, ?, ?, ?, ?, ?, ?)",
 ];
 
-/* $prep_statement = $db->prepare($queries["test"]); // Creates an object with a prepared statement */
-/* $prep_statement->execute(["2"]);                  // Object executes prepared statement with arguments */
-/* $result = $prep_statement->fetchAll();            // Object returns preped statement results */
-
 /**
  * Create an envelope to database
- *
  * @param string $uuid The UUID
  * @param string|null $writer Name of message writer
  * @param string|null $writer_email Email of message writer
@@ -48,6 +43,6 @@ function envelope_create(
     $stmt->fetch();
     return new InternalMessage(true, "Message saved!");
   } catch (Exception $err) {
-    return new InternalMessage(false, "Database Error {$err}");
+    return new InternalMessage(false, "Database Error: {$err}");
   }
 }
