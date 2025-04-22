@@ -5,14 +5,30 @@ declare(strict_types=1);
 $db = new PDO("sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
 $queries = [
+  "create_table" => '
+    CREATE TABLE IF NOT EXISTS envelopes(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      uuid TEXT NOT NULL UNIQUE,
+      writer TEXT,
+      writer_email TEXT,
+      reader TEXT,
+      reader_email TEXT,
+      created_at INTEGER NOT NULL,
+      expires INTEGER NOT NULL,
+      expired INTEGER NOT NULL DEFAULT 0,
+      opened INTEGER NOT NULL DEFAULT 0,
+      letter TEXT
+    );',
   "test" => "SELECT * FROM test WHERE id = ?",
   "check_if_envelope_exists" => "SELECT opened, reader, writer FROM envelopes WHERE uuid = ?",
   "unseal_envelope" => "SELECT * FROM envelopes WHERE uuid = ?",
   "create_envelope" => "
-  INSERT INTO envelopes
-  (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
-  values (?, ?, ?, ?, ?, ?, ?, ?)",
+    INSERT INTO envelopes
+    (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
+    values (?, ?, ?, ?, ?, ?, ?, ?)",
 ];
+
+$db->exec($queries["create_table"]);
 
 /**
  * Create an envelope to database

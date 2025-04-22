@@ -6,7 +6,7 @@ include('./router.php');
 include('./controllers/controller.php');
 include('./lib/classes.php');
 include('./lib/uuid_generator.php');
-include('./lib/database.php');
+include('./models/database.php');
 
 $writer = $_GET["writer"] ?? NULL;
 $reader = $_GET["reader"] ?? NULL;
