@@ -17,18 +17,18 @@ $queries = [
       expires INTEGER NOT NULL,
       expired INTEGER NOT NULL DEFAULT 0,
       opened INTEGER NOT NULL DEFAULT 0,
-      key_hash TEXT DEFAULT NULL,
+      passkey_hash TEXT DEFAULT NULL,
       letter TEXT
     );',
   "test" => "SELECT * FROM test WHERE id = ?",
-  "check_if_envelope_exists" => "SELECT opened, expired, reader, writer FROM envelopes WHERE uuid = ?",
+  "check_if_envelope_exists" => "SELECT opened, expired, reader, passkey_hash, writer FROM envelopes WHERE uuid = ?",
   "return_all_values" => "SELECT * FROM envelopes WHERE uuid = ?",
   "unseal_envelope" => "UPDATE envelopes SET opened = ?, letter = null WHERE uuid = ?",
   "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
   "create_envelope" => "
     INSERT INTO envelopes
-    (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
-    values (?, ?, ?, ?, ?, ?, ?, ?)",
+    (uuid, writer, writer_email, reader, reader_email, created_at, expires, passkey_hash, letter)
+    values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 ];
 
 // Standard DB operations
@@ -42,6 +42,7 @@ $db->prepare($queries["expire_envelopes"])->execute([time()]);
  * @param string|null $writer_email Email of message writer
  * @param string|null $reader Name of message recipient
  * @param string|null $reader_email Email of message recipient
+ * @param string|null $passkey Key to be hashed into DB
  * @param string $expires Hours until message expires
  * @param string $message Message content
  */
@@ -51,16 +52,18 @@ function envelope_to_database(
   string|NULL $writer_email,
   string|NULL $reader,
   string|NULL $reader_email,
+  string|NULL $passkey,
   string $expires,
   string $message,
 ): InternalMessage {
   try {
     global $db;
     global $queries;
+    $passkey_hash = !is_null($passkey) ? hash("sha256", $passkey) : $passkey;
     $created_at = time();
     $expires_at = $created_at + (intval($expires) * 60 * 60);
     $stmt = $db->prepare($queries["create_envelope"]);
-    $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $message]);
+    $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $passkey_hash, $message]);
     $stmt->fetch();
     return new InternalMessage(true, "Message saved!");
   } catch (Exception $err) {
@@ -87,6 +90,7 @@ function check_if_envelope_exists(
     }
     $data = [
       "opened" => intval($column["opened"]),
+      "locked" => !is_null($column["passkey_hash"]),
       "expired" => $column["expired"] == "0" ? false : true,
       "reader" => $column["reader"],
       "writer" => $column["writer"],

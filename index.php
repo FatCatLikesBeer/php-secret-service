@@ -14,6 +14,7 @@ $writer_email = $_GET["writer_email"] ?? NULL;
 $reader_email = $_GET["reader_email"] ?? NULL;
 $expires = $_GET["expires"] ?? "24";
 $message = $_GET["message"] ?? NULL;
+$key = $_GET["key"] ?? NULL;
 
 // Pre routing validation
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -70,11 +71,20 @@ post('/api/v0/messages', function () use (
   $reader,
   $writer_email,
   $reader_email,
+  $key,
   $expires,
   $message
 ) {
   try {
-    $result = address_envelope($writer, $writer_email, $reader, $reader_email, $expires, $message);
+    $result = address_envelope(
+      writer: $writer,
+      writer_email: $writer_email,
+      reader: $reader,
+      reader_email: $reader_email,
+      passkey: $key,
+      expires: $expires,
+      message: $message,
+    );
 
     if (!$result->success) {
       throw new Exception("Database Error, potential ID conflict, please try again.", 500);
@@ -85,7 +95,7 @@ post('/api/v0/messages', function () use (
       "reader" => $reader,
       'writer_email' => $writer_email,
       'reader_email' => $reader_email,
-      'expires' => $expires,
+      'expires' => intval($expires),
       "uuid" => $result->message
     ];
 
