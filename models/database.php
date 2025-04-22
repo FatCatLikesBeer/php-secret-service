@@ -21,7 +21,8 @@ $queries = [
     );',
   "test" => "SELECT * FROM test WHERE id = ?",
   "check_if_envelope_exists" => "SELECT opened, expired, reader, writer FROM envelopes WHERE uuid = ?",
-  "unseal_envelope" => "SELECT * FROM envelopes WHERE uuid = ?",
+  "return_all_values" => "SELECT * FROM envelopes WHERE uuid = ?",
+  "unseal_envelope" => "UPDATE envelopes SET opened = 1, letter = null WHERE uuid = ?",
   "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
   "create_envelope" => "
     INSERT INTO envelopes
@@ -89,7 +90,7 @@ function check_if_envelope_exists(
       "reader" => $column["reader"],
       "writer" => $column["writer"],
     ];
-    return new InternalMessage(true, "Envelope Found", $data);
+    return new InternalMessage(true, "Envelope Found.", $data);
   } catch (Exception $err) {
     return new InternalMessage(false, "Database Error: {$err}");
   }
@@ -103,6 +104,41 @@ function check_if_envelope_exists(
  */
 function unseal_envelope(string $uuid): InternalMessage
 {
-  $success = false;
-  return new InternalMessage(success: $success, message: "Generic Message");
+  $message = new InternalMessage(false, "Unknown Server Error", code: 500);
+  global $db;
+  global $queries;
+  try {
+    // Check if envelope exists
+    $stmt_check = $db->prepare($queries["check_if_envelope_exists"]);
+    $stmt_check->execute([$uuid]);
+    $check_if_exists = $stmt_check->fetch();
+
+    // Verifiy expired
+    if ($check_if_exists["expired"] == "1") {
+      throw new Exception("Message expired.", 410);
+    }
+
+    // Verify opened
+    if ($check_if_exists["opened"] == "1") {
+      throw new Exception("Message already opened.", 410);
+    }
+
+    // Retrieve Data
+    $stmt = $db->prepare($queries["return_all_values"]);
+    $stmt->execute([$uuid]);
+    $columns = $stmt->fetch();
+    $letter = $columns["letter"];
+    $message->data = ["letter" => $letter];
+    $message->success = true;
+    $message->message = "Letter content";
+    $message->code = 200;
+
+    // Set letter as opened
+    $db->prepare($queries["unseal_envelope"])->execute([$uuid]);
+  } catch (Exception $err) {
+    $message->message = $err->getMessage();
+    $message->success = false;
+    $message->code = $err->getCode();
+  }
+  return $message;
 }

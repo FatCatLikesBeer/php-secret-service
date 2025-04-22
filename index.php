@@ -112,10 +112,22 @@ get('/api/v0/messages/$uuid', function ($uuid) {
   }
 });
 
+get('/api/v0/messages/$uuid/read', function ($uuid) {
+  try {
+    $result = get_letter($uuid);
+    if (!$result->success) {
+      throw new Exception($result->message, $result->code);
+    }
+    $data = $result->data;
+    new Response("Letter opened", true, 200, $data)->sendJSON();
+  } catch (Exception $err) {
+    new Response($err->getMessage(), false, $err->getCode())->sendJSON();
+  }
+});
+
 get('/api/v0', function () {
   route_not_used();
 });
 
+// Create a passkey feature
 // Either work on encryption or work on API unseal envelope
-// Create a function that expires envelopes
-// Write SQL for unsealing envelopes

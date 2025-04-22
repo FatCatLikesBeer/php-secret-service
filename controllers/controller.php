@@ -46,3 +46,14 @@ function get_envelope(string $uuid): InternalMessage
   $result = check_if_envelope_exists($uuid);
   return new InternalMessage($result->success, $result->message, $result->data ?? null);
 }
+
+/**
+ * Unseals envelope
+ * @param string $uuid UUID of envelope
+ * @return InternalMessage - Internal messaging object
+ */
+function get_letter(string $uuid): InternalMessage
+{
+  $result = unseal_envelope($uuid);
+  return new InternalMessage($result->success, $result->message, $result->data ?? null, $result->code);
+}

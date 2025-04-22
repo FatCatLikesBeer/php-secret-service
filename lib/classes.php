@@ -44,15 +44,20 @@ class InternalMessage
 {
   public bool $success;
   public string $message;
+  public ?int $code = null;
   public ?array $data;
 
   function __construct(
     bool $success,
     string $message,
     ?array $data = null,
+    ?int $code = null,
   ) {
     $this->success = $success;
     $this->message = $message;
+    if (!is_null($code)) {
+      $this->code = $code;
+    }
     if (!is_null($data)) {
       $this->data = $data;
     }
