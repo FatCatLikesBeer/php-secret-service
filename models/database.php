@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$db = new PDO("sqlite:" . __DIR__ . "/../models/my_base.sqlite");
+$db = new PDO(dsn: "sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
 $queries = [
   "create_table" => '
@@ -20,15 +20,18 @@ $queries = [
       letter TEXT
     );',
   "test" => "SELECT * FROM test WHERE id = ?",
-  "check_if_envelope_exists" => "SELECT opened, reader, writer FROM envelopes WHERE uuid = ?",
+  "check_if_envelope_exists" => "SELECT opened, expired, reader, writer FROM envelopes WHERE uuid = ?",
   "unseal_envelope" => "SELECT * FROM envelopes WHERE uuid = ?",
+  "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
   "create_envelope" => "
     INSERT INTO envelopes
     (uuid, writer, writer_email, reader, reader_email, created_at, expires, letter)
     values (?, ?, ?, ?, ?, ?, ?, ?)",
 ];
 
+// Standard DB operations
 $db->exec($queries["create_table"]);
+$db->prepare($queries["expire_envelopes"])->execute([time()]);
 
 /**
  * Create an envelope to database
@@ -82,6 +85,7 @@ function check_if_envelope_exists(
     }
     $data = [
       "opened" => $column["opened"] == "0" ? false : true,
+      "expired" => $column["expired"] == "0" ? false : true,
       "reader" => $column["reader"],
       "writer" => $column["writer"],
     ];
@@ -89,4 +93,16 @@ function check_if_envelope_exists(
   } catch (Exception $err) {
     return new InternalMessage(false, "Database Error: {$err}");
   }
+}
+
+/**
+ * Returns contents of envelope (letter), sets opened to 1,
+ * sets expired to 1, deletes content (letter).
+ * @param stirng $uuid UUID of envelope
+ * @return InternalMessage
+ */
+function unseal_envelope(string $uuid): InternalMessage
+{
+  $success = false;
+  return new InternalMessage(success: $success, message: "Generic Message");
 }

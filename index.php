@@ -52,6 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
     }
 
+    if (intval($expires) > 168) {
+      throw new Exception("Expiration length too large.", 400);
+    }
     if (intval($expires) < 1) {
       throw new Exception("Expiration length too small.", 400);
     }
@@ -114,3 +117,5 @@ get('/api/v0', function () {
 });
 
 // Either work on encryption or work on API unseal envelope
+// Create a function that expires envelopes
+// Write SQL for unsealing envelopes

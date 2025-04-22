@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 /**
+ * Response Class which sends off API data
  * @method void sendJSON() Sends the response as JSON
  * @param bool $success Request was a success
  * @param string $message Message Content
@@ -14,13 +15,13 @@ class Response
   public bool $success;
   public string $message;
   public int $status;
-  public array|null $data;
+  public ?array $data;
 
   function __construct(
     string $message,
     bool $success = false,
     int $status = 500,
-    array|null $data = null
+    ?array $data = null
   ) {
     $this->success = $success;
     $this->message = $message;
@@ -43,11 +44,12 @@ class InternalMessage
 {
   public bool $success;
   public string $message;
-  public array|null $data;
+  public ?array $data;
+
   function __construct(
     bool $success,
     string $message,
-    array|null $data = null
+    ?array $data = null,
   ) {
     $this->success = $success;
     $this->message = $message;
