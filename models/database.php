@@ -17,12 +17,13 @@ $queries = [
       expires INTEGER NOT NULL,
       expired INTEGER NOT NULL DEFAULT 0,
       opened INTEGER NOT NULL DEFAULT 0,
+      key_hash TEXT DEFAULT NULL,
       letter TEXT
     );',
   "test" => "SELECT * FROM test WHERE id = ?",
   "check_if_envelope_exists" => "SELECT opened, expired, reader, writer FROM envelopes WHERE uuid = ?",
   "return_all_values" => "SELECT * FROM envelopes WHERE uuid = ?",
-  "unseal_envelope" => "UPDATE envelopes SET opened = 1, letter = null WHERE uuid = ?",
+  "unseal_envelope" => "UPDATE envelopes SET opened = ?, letter = null WHERE uuid = ?",
   "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
   "create_envelope" => "
     INSERT INTO envelopes
@@ -85,7 +86,7 @@ function check_if_envelope_exists(
       throw new Exception("Envelope not found");
     }
     $data = [
-      "opened" => $column["opened"] == "0" ? false : true,
+      "opened" => intval($column["opened"]),
       "expired" => $column["expired"] == "0" ? false : true,
       "reader" => $column["reader"],
       "writer" => $column["writer"],
@@ -134,7 +135,7 @@ function unseal_envelope(string $uuid): InternalMessage
     $message->code = 200;
 
     // Set letter as opened
-    $db->prepare($queries["unseal_envelope"])->execute([$uuid]);
+    $db->prepare($queries["unseal_envelope"])->execute([time(), $uuid]);
   } catch (Exception $err) {
     $message->message = $err->getMessage();
     $message->success = false;

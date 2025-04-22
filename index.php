@@ -131,3 +131,4 @@ get('/api/v0', function () {
 
 // Create a passkey feature
 // Either work on encryption or work on API unseal envelope
+// Feature ideas:
