@@ -61,10 +61,14 @@ function get_envelope(string $uuid): InternalMessage
 /**
  * Unseals envelope
  * @param string $uuid UUID of envelope
+ * @param string|null $passkey Key to retrieve content (letter)
  * @return InternalMessage - Internal messaging object
  */
-function get_letter(string $uuid): InternalMessage
+function get_letter(string $uuid, string|null $passkey): InternalMessage
 {
-  $result = unseal_envelope($uuid);
+  $result = unseal_envelope(
+    uuid: $uuid,
+    passkey: $passkey,
+  );
   return new InternalMessage($result->success, $result->message, $result->data ?? null, $result->code);
 }

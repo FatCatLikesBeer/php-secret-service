@@ -105,9 +105,10 @@ function check_if_envelope_exists(
  * Returns contents of envelope (letter), sets opened to 1,
  * sets expired to 1, deletes content (letter).
  * @param stirng $uuid UUID of envelope
+ * @param string|null $passkey Key to retrieve content (letter)
  * @return InternalMessage
  */
-function unseal_envelope(string $uuid): InternalMessage
+function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
 {
   $message = new InternalMessage(false, "Unknown Server Error", code: 500);
   global $db;
@@ -119,13 +120,23 @@ function unseal_envelope(string $uuid): InternalMessage
     $check_if_exists = $stmt_check->fetch();
 
     // Verifiy expired
-    if ($check_if_exists["expired"] == "1") {
+    if ($check_if_exists["expired"] != "0") {
       throw new Exception("Message expired.", 410);
     }
 
     // Verify opened
-    if ($check_if_exists["opened"] == "1") {
+    if ($check_if_exists["opened"] != "0") {
       throw new Exception("Message already opened.", 410);
+    }
+
+    // Verify passkey != null
+    if (is_null($passkey)) {
+      throw new Exception("Key invalid.", 401);
+    }
+
+    // Validate passkey
+    if ($check_if_exists["passkey_hash"] != hash("sha256", $passkey)) {
+      throw new Exception("Key invalid.", 401);
     }
 
     // Retrieve Data

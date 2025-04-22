@@ -122,9 +122,9 @@ get('/api/v0/messages/$uuid', function ($uuid) {
   }
 });
 
-get('/api/v0/messages/$uuid/read', function ($uuid) {
+get('/api/v0/messages/$uuid/read', function ($uuid) use ($key) {
   try {
-    $result = get_letter($uuid);
+    $result = get_letter($uuid, $key);
     if (!$result->success) {
       throw new Exception($result->message, $result->code);
     }
@@ -139,6 +139,5 @@ get('/api/v0', function () {
   route_not_used();
 });
 
-// Create a passkey feature
 // Either work on encryption or work on API unseal envelope
 // Feature ideas:
