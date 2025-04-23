@@ -63,3 +63,62 @@ class InternalMessage
     }
   }
 }
+
+class UnsafeCrypto
+{
+  const METHOD = 'aes-256-ctr';
+
+  /**
+   * Encryption Method
+   *
+   * @param string $message Message to be encrypted
+   * @param string $key Encryption key
+   * @return string
+   */
+  public static function encrypt(string $message, string $key)
+  {
+    $nonce_size = openssl_cipher_iv_length(self::METHOD);
+    $nonce = openssl_random_pseudo_bytes($nonce_size);
+
+    $cipher_text = openssl_encrypt(
+      $message,
+      self::METHOD,
+      $key,
+      OPENSSL_RAW_DATA,
+      $nonce,
+    );
+
+    return base64_encode($nonce . $cipher_text);
+  }
+
+  /**
+   * Decryption Method
+   *
+   * @param string $message Encrypted message to be decrypted
+   * @param string $key Encryption key
+   * @return string
+   */
+  public static function decrypt(string $message, string $key)
+  {
+    $message = base64_decode($message, true);
+    if ($message === false) {
+      throw new Exception("Encryption failure");
+    }
+
+    $nonce_size = openssl_cipher_iv_length(self::METHOD);
+    $nonce = mb_substr($message, 0, $nonce_size, "8bit");
+    $cypher_text = mb_substr($message, $nonce_size, null, "8bit");
+
+    $plain_text = openssl_decrypt(
+      $cypher_text,
+      self::METHOD,
+      $key,
+      OPENSSL_RAW_DATA,
+      $nonce,
+    );
+
+    return $plain_text;
+  }
+  // Thank you biziclop
+  // https://stackoverflow.com/a/30189841
+}

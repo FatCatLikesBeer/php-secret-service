@@ -9,7 +9,7 @@ function echo_slug($slug)
 
 function route_not_used()
 {
-  echo new Response("Endpoint not in use")->sendJSON();
+  echo new Response("Endpoint not in use", status: 400)->sendJSON();
 }
 
 /**
