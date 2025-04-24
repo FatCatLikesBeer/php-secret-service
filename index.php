@@ -113,7 +113,7 @@ get('/api/v0/messages/$uuid', function ($uuid) {
 
     $result = get_envelope($uuid);
     if (!$result->success) {
-      throw new Exception("No envelope found", 400);
+      throw new Exception("No envelope found.", 400);
     }
 
     new Response("Envelope Found", true, 200, $result->data)->sendJSON();

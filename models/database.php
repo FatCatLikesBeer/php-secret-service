@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+$key = getenv("PHP_CRYPTO_KEY");
 
 $db = new PDO(dsn: "sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
@@ -21,7 +22,7 @@ $queries = [
       letter TEXT
     );',
   "test" => "SELECT * FROM test WHERE id = ?",
-  "check_if_envelope_exists" => "SELECT opened, expired, reader, passkey_hash, writer FROM envelopes WHERE uuid = ?",
+  "check_if_envelope_exists" => "SELECT created_at, opened, expired, reader, passkey_hash, writer FROM envelopes WHERE uuid = ?",
   "return_all_values" => "SELECT * FROM envelopes WHERE uuid = ?",
   "unseal_envelope" => "UPDATE envelopes SET opened = ?, letter = null WHERE uuid = ?",
   "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
@@ -56,14 +57,16 @@ function envelope_to_database(
   string $expires,
   string $message,
 ): InternalMessage {
+  global $db;
+  global $queries;
+  global $key;
   try {
-    global $db;
-    global $queries;
+    $letter = UnsafeCrypto::encrypt($message, $key);
     $passkey_hash = !is_null($passkey) ? hash("sha256", $passkey) : $passkey;
     $created_at = time();
     $expires_at = $created_at + (intval($expires) * 60 * 60);
     $stmt = $db->prepare($queries["create_envelope"]);
-    $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $passkey_hash, $message]);
+    $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $passkey_hash, $letter]);
     $stmt->fetch();
     return new InternalMessage(true, "Message saved!");
   } catch (Exception $err) {
@@ -86,7 +89,7 @@ function check_if_envelope_exists(
     $stmt->execute([$uuid]);
     $column = $stmt->fetch();
     if (!is_array($column)) {
-      throw new Exception("Envelope not found");
+      throw new Exception("Envelope not found.");
     }
     $data = [
       "opened" => intval($column["opened"]),
@@ -94,6 +97,7 @@ function check_if_envelope_exists(
       "expired" => $column["expired"] == "0" ? false : true,
       "reader" => $column["reader"],
       "writer" => $column["writer"],
+      "created_at" => $column["created_at"],
     ];
     return new InternalMessage(true, "Envelope Found.", $data);
   } catch (Exception $err) {
@@ -113,11 +117,26 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
   $message = new InternalMessage(false, "Unknown Server Error", code: 500);
   global $db;
   global $queries;
+  global $key;
   try {
     // Check if envelope exists
     $stmt_check = $db->prepare($queries["check_if_envelope_exists"]);
     $stmt_check->execute([$uuid]);
     $check_if_exists = $stmt_check->fetch();
+
+    // Verify envelope exists
+    if (!is_array($check_if_exists)) {
+      throw new Exception("Envelope not found.", 500);
+    }
+
+    $message->data = [
+      "opened" => intval($check_if_exists["opened"]),
+      "locked" => !is_null($check_if_exists["passkey_hash"]),
+      "expired" => $check_if_exists["expired"] == "0" ? false : true,
+      "reader" => $check_if_exists["reader"],
+      "writer" => $check_if_exists["writer"],
+      "created_at" => $check_if_exists["created_at"],
+    ];
 
     // Verifiy expired
     if ($check_if_exists["expired"] != "0") {
@@ -129,11 +148,6 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
       throw new Exception("Message already opened.", 410);
     }
 
-    // Verify passkey != null
-    if (is_null($passkey)) {
-      throw new Exception("Key invalid.", 401);
-    }
-
     // Validate passkey
     if ($check_if_exists["passkey_hash"] != hash("sha256", $passkey)) {
       throw new Exception("Key invalid.", 401);
@@ -143,9 +157,9 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $stmt = $db->prepare($queries["return_all_values"]);
     $stmt->execute([$uuid]);
     $columns = $stmt->fetch();
-    $letter = $columns["letter"];
+    $encrypted_letter = $columns["letter"];
+    $letter = UnsafeCrypto::decrypt($encrypted_letter, $key);
     $message->data = ["letter" => $letter];
-    $message->success = true;
     $message->message = "Letter content";
     $message->code = 200;
 
@@ -153,7 +167,6 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $db->prepare($queries["unseal_envelope"])->execute([time(), $uuid]);
   } catch (Exception $err) {
     $message->message = $err->getMessage();
-    $message->success = false;
     $message->code = $err->getCode();
   }
   return $message;
