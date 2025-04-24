@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-$key = getenv("PHP_CRYPTO_KEY");
+$env_key = getenv("PHP_CRYPTO_KEY");
 
 $db = new PDO(dsn: "sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
@@ -32,7 +32,19 @@ $queries = [
     values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 ];
 
+$visitor_queries = [
+  "create_table" => '
+  CREATE TABLE IF NOT EXISTS visits(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    count INTEGER DEFAULT 0
+    );',
+  "create_first_row" => "INSERT OR IGNORE INTO visits (id) values(1);",
+  "update_count" => "UPDATE visits SET count = count + 1 WHERE id = 1 RETURNING count;",
+  "get_count" => "SELECT count FROM visits WHERE id = 1;",
+];
+
 // Standard DB operations
+$db->exec($visitor_queries["create_table"]);
 $db->exec($queries["create_table"]);
 $db->prepare($queries["expire_envelopes"])->execute([time()]);
 
@@ -59,9 +71,9 @@ function envelope_to_database(
 ): InternalMessage {
   global $db;
   global $queries;
-  global $key;
+  global $env_key;
   try {
-    $letter = UnsafeCrypto::encrypt($message, $key);
+    $letter = UnsafeCrypto::encrypt($message, $env_key);
     $passkey_hash = !is_null($passkey) ? hash("sha256", $passkey) : $passkey;
     $created_at = time();
     $expires_at = $created_at + (intval($expires) * 60 * 60);
@@ -117,7 +129,7 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
   $message = new InternalMessage(false, "Unknown Server Error", code: 500);
   global $db;
   global $queries;
-  global $key;
+  global $env_key;
   try {
     // Check if envelope exists
     $stmt_check = $db->prepare($queries["check_if_envelope_exists"]);
@@ -136,6 +148,7 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
       "reader" => $check_if_exists["reader"],
       "writer" => $check_if_exists["writer"],
       "created_at" => $check_if_exists["created_at"],
+      "letter" => null,
     ];
 
     // Verifiy expired
@@ -158,8 +171,8 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $stmt->execute([$uuid]);
     $columns = $stmt->fetch();
     $encrypted_letter = $columns["letter"];
-    $letter = UnsafeCrypto::decrypt($encrypted_letter, $key);
-    $message->data = ["letter" => $letter];
+    $letter = UnsafeCrypto::decrypt($encrypted_letter, $env_key);
+    $message->data["letter"] = $letter;
     $message->message = "Letter content";
     $message->code = 200;
 
@@ -170,4 +183,22 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $message->code = $err->getCode();
   }
   return $message;
+}
+
+$visitor_increment = function () use ($db, $visitor_queries): int {
+  $stmt = $db->prepare($visitor_queries["update_count"]);
+  $stmt->execute();
+  $columns = $stmt->fetch();
+  $result = $columns["count"];
+  return $result;
+};
+
+function visitor_count(): int
+{
+  global $db;
+  global $visitor_queries;
+  $stmt = $db->prepare($visitor_queries["get_count"]);
+  $stmt->execute();
+  $columns = $stmt->fetch();
+  return $columns["count"];
 }

@@ -72,3 +72,8 @@ function get_letter(string $uuid, string|null $passkey): InternalMessage
   );
   return new InternalMessage($result->success, $result->message, $result->data ?? null, $result->code);
 }
+
+function get_visitor_count(): int
+{
+  return visitor_count();
+}

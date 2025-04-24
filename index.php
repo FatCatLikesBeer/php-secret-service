@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
-include('./router.php');
+include_once('./router.php');
+
+// Views Go Here
+get("/", "./views/index.php");
+
 include('./controllers/controller.php');
 include('./lib/classes.php');
 include('./lib/uuid_generator.php');
@@ -139,5 +143,7 @@ get('/api/v0', function () {
   route_not_used();
 });
 
-// Either work on encryption or work on API unseal envelope
-// Feature ideas:
+get('/api/v0/visitor-count', function () {
+  $count = get_visitor_count();
+  new Response("Visitor Count", true, 200, ["count" => $count])->sendJSON();
+});
