@@ -1,9 +1,8 @@
 <?php
 include_once(__DIR__ . "/../models/database.php");
 $count = $visitor_increment();
-// TODO: Reactive char counter indicator color
 // TODO: passkey
-// TOOD: Change view on succccessful response
+// TODO: Change view on succccessful response
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +39,13 @@ $count = $visitor_increment();
       padding-top: 0.8rem;
       padding-bottom: 0.8rem;
     }
+
+    #sub-panel {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      color: var(--pico-muted-color);
+    }
   </style>
 </head>
 
@@ -56,6 +62,9 @@ $count = $visitor_increment();
           <button type="button" id="snd-button">
             Save Message
           </button>
+        </div>
+        <div id="sub-panel">
+          <span>Options</span>
         </div>
       </div>
     </div>

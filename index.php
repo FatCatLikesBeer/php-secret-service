@@ -6,6 +6,7 @@ include_once('./router.php');
 
 // Views Go Here
 get("/", "./views/index.php");
+get("/messages", "./views/index.php");
 
 include('./controllers/controller.php');
 include('./lib/classes.php');
