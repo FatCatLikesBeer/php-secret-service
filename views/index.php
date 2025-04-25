@@ -1,8 +1,9 @@
 <?php
 include_once(__DIR__ . "/../models/database.php");
 $count = $visitor_increment();
-// TODO: Text area character counter
+// TODO: Reactive char counter indicator color
 // TODO: passkey
+// TOOD: Change view on succccessful response
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +23,7 @@ $count = $visitor_increment();
 
     textarea {
       padding: 4px 8px;
+      resize: none;
     }
 
     #toast {
@@ -68,6 +70,8 @@ $count = $visitor_increment();
   const msgArea = document.getElementById("msg-area");
   const button = document.getElementById("snd-button");
   const charCount = document.getElementById("char-count");
+  const fullCount = document.getElementById("full-count");
+  const charCountBreakpoints = [360, 390];
   const toast = {
     container: document.getElementById("toast"),
     banner: document.getElementById("toast-message"),
@@ -76,7 +80,7 @@ $count = $visitor_increment();
       this.container.setAttribute("hidden", "true");
       console.log("Closing toast");
     },
-    alert: function(message = "Generic Message", success = true, timeout = 3000) {
+    shout: function(message = "Generic Message", success = true, timeout = 3000) {
       this.container.removeAttribute("hidden");
       this.banner.innerText = message;
       if (!success) {
@@ -92,16 +96,41 @@ $count = $visitor_increment();
     }
   }
 
-  toast.alert();
+  async function sendMessage() {
+    const messageValue = msgArea.value;
+    try {
+      const request = await fetch(`${apiURL}?message=${messageValue}`, {
+        method: "POST"
+      });
+      if (!request.ok) {
+        throw new Error("Server Error, please try again later");
+      }
+      const json = await request.json();
+      if (!json.success) {
+        throw new Error(json.message);
+      }
+      toast.shout(json.message);
+      console.log(json);
+    } catch (err) {
+      toast.shout(err.message, false);
+    }
+  }
 
-  msgArea.addEventListener("input", () => {
-    charCount.innerText = msgArea.value.length;
-  });
+  function reactiveCharCount() {
+    const length = msgArea.value.length;
+    charCount.innerText = length;
+    if ((charCountBreakpoints[0] <= length) && (charCountBreakpoints[1] > length)) {
+      fullCount.style.setProperty("color", "var(--pico-color-yellow-200)");
+    } else if (charCountBreakpoints[1] <= length) {
+      fullCount.style.setProperty("color", "var(--pico-color-red-500)");
+    } else {
+      fullCount.style.removeProperty("var(--pico-color)");
+    }
+  }
 
-  button.addEventListener("click", () => {
-    const message = msgArea.value;
-    toast.alert(message, false);
-  });
+  msgArea.addEventListener("input", reactiveCharCount);
+
+  button.addEventListener("click", sendMessage);
 
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
