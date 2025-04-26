@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 include_once('./router.php');
 
+const SITE_NAME = "Project Flight";
+
 // Views Go Here
 get("/", "./views/index.php");
 get("/messages", "./views/index.php");
