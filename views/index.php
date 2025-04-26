@@ -2,7 +2,6 @@
 include_once(__DIR__ . "/../models/database.php");
 /* const SITE_NAME = "Project Flight"; */
 $count = $visitor_increment();
-// TODO: passkey
 // TODO: Change view on succccessful response
 // TODO: Create tests
 ?>
@@ -48,8 +47,13 @@ $count = $visitor_increment();
 
     #options-panel {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       justify-content: space-around;
+    }
+
+    #options-panel>div {
+      display: flex;
+      flex-direction: row;
     }
 
     #options-button {
@@ -59,6 +63,10 @@ $count = $visitor_increment();
     #sub-panel {
       display: flex;
       flex-direction: column;
+    }
+
+    label {
+      min-width: 4rem;
     }
   </style>
 </head>
@@ -72,14 +80,36 @@ $count = $visitor_increment();
       <div id="msg-panel">
         <textarea id="msg-area" maxlength="400" rows="10"></textarea>
         <div id="options-panel" hidden="true">
-          Placeholder
+          <div>
+            <label for="expires">Time to Expire</label>
+            <select id="expires">
+              <option value="6">6 Hours</option>
+              <option value="8">8 Hours</option>
+              <option value="12">12 Hours</option>
+              <option value="24" selected>1 Day</option>
+              <option value="36">3 Days</option>
+              <option value="168">7 Days</option>
+            </select>
+          </div>
+          <div>
+            <label for="passkey">Pass Key:</label>
+            <input id="passkey" type="password" placeholder="none" />
+          </div>
+          <div>
+            <label for="writer">From:</label>
+            <input id="writer" type="text" placeholder="Author" />
+          </div>
+          <div>
+            <label for="reader">To:</label>
+            <input id="reader" type="text" placeholder="Recipiant" />
+          </div>
         </div>
         <div id="control-panel">
           <div id="sub-panel">
             <span id="full-count"><span id="char-count">0</span> / 400</span>
             <a id="options-button">Options</a>
           </div>
-          <button type="button" id="snd-button">
+          <button type="button" id="snd-button" disabled>
             Save Message
           </button>
         </div>
@@ -130,8 +160,8 @@ $count = $visitor_increment();
   //******************************
   //    Interaction Assignments
   //******************************
-  msgArea.addEventListener("input", reactiveCharCount);
-  sendButton.addEventListener("click", sendMessage);
+  msgArea.addEventListener("input", respondToMessageAreaInteraction);
+  sendButton.addEventListener("click", logSelectedOptions);
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
   });
@@ -160,7 +190,7 @@ $count = $visitor_increment();
     }
   }
 
-  function reactiveCharCount() {
+  function respondToMessageAreaInteraction() {
     const length = msgArea.value.length;
     charCount.innerText = length;
     if ((charCountBreakpoints[0] <= length) && (charCountBreakpoints[1] > length)) {
@@ -169,6 +199,11 @@ $count = $visitor_increment();
       fullCount.style.setProperty("color", "var(--pico-color-red-500)");
     } else {
       fullCount.style.removeProperty("var(--pico-color)");
+    }
+    if (0 === length) {
+      sendButton.setAttribute("disabled", "true");
+    } else {
+      sendButton.removeAttribute("disabled");
     }
   }
 
@@ -179,6 +214,49 @@ $count = $visitor_increment();
     } else {
       optPanel.setAttribute("hidden", "true");
     }
+  }
+
+  function constructParameter(values = {
+    message: string,
+    writer: string,
+    reader: string,
+    writer_email: string,
+    reader_email: string,
+    key: string,
+    expires: string,
+  }) {
+    let result = "";
+    const valueKeys = Object.keys(values);
+    valueKeys.forEach((key, i, arr) => {
+      if (null != values[key]) {
+        result += `${key}=${values[key]}&`;
+      }
+    });
+    result = result.substring(0, result.length - 1);
+    return encodeURI(result);
+  }
+
+  function returnNullIfEmpty(value) {
+    const result = "" === value ? null : value;
+    return result;
+  }
+
+  function logSelectedOptions() {
+    const message = msgArea.value;
+    const expires = document.getElementById("expires").value;
+    const writer = returnNullIfEmpty(document.getElementById("writer").value)
+    const reader = returnNullIfEmpty(document.getElementById("reader").value)
+    const key = returnNullIfEmpty(document.getElementById("passkey").value)
+    const options = {
+      message,
+      expires,
+      writer,
+      reader,
+      key
+    }
+    /* console.log(options); */
+    const parameterizedOptions = constructParameter(options);
+    console.log(parameterizedOptions);
   }
 </script>
 
