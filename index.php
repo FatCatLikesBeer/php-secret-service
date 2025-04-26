@@ -5,6 +5,7 @@ declare(strict_types=1);
 include_once('./router.php');
 
 const SITE_NAME = "Project Flight";
+const SITE_DOMAIN = "http://localhost:8000";
 
 // Views Go Here
 get("/", "./views/index.php");
@@ -46,17 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       if (2 > strlen($writer)) {
         throw new Exception("Writer's name is too short.", 400);
       }
-      if (is_null($writer_email)) {
-        throw new Exception("Writer's email is required.", 400);
-      }
     }
 
     if ($reader) {
       if (2 > strlen($reader)) {
         throw new Exception("Reader's name is too short.", 400);
-      }
-      if (is_null($reader_email)) {
-        throw new Exception("Reader's email is required.", 400);
       }
     }
 

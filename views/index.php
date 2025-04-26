@@ -21,7 +21,7 @@ $count = $visitor_increment();
 
     #control-panel {
       display: flex;
-      flex-direction: row;
+      flex-direction: row-reverse;
       justify-content: space-between;
     }
 
@@ -68,6 +68,13 @@ $count = $visitor_increment();
     label {
       min-width: 4rem;
     }
+
+    #response {
+      border: var(--pico-primary-border) var(--pico-border-width) solid;
+      border-radius: var(--pico-border-radius);
+      padding: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
   </style>
 </head>
 
@@ -105,13 +112,13 @@ $count = $visitor_increment();
           </div>
         </div>
         <div id="control-panel">
+          <button type="button" id="snd-button" disabled>
+            Save Message
+          </button>
           <div id="sub-panel">
             <span id="full-count"><span id="char-count">0</span> / 400</span>
             <a id="options-button">Options</a>
           </div>
-          <button type="button" id="snd-button" disabled>
-            Save Message
-          </button>
         </div>
       </div>
     </div>
@@ -162,10 +169,10 @@ $count = $visitor_increment();
   //******************************
   msgArea.addEventListener("input", respondToMessageAreaInteraction);
   sendButton.addEventListener("click", sendMessage);
+  optButton.addEventListener("click", toggleOptionsPanel);
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
   });
-  optButton.addEventListener("click", toggleOptionsPanel);
 
   //******************************
   //    Function Definitions
@@ -173,7 +180,6 @@ $count = $visitor_increment();
   async function sendMessage() {
     const parameterizedOptions = constructParameter();
     const fullURI = `${apiURL}?${parameterizedOptions}`;
-    console.log(fullURI);
     try {
       const request = await fetch(fullURI, {
         method: "POST"
@@ -185,7 +191,7 @@ $count = $visitor_increment();
       if (!json.success) {
         throw new Error(json.message);
       }
-      toast.shout(json.message);
+      swapMessageAreaWithResponse(json.data);
       console.log(json);
     } catch (err) {
       toast.shout(err.message, false);
@@ -218,6 +224,10 @@ $count = $visitor_increment();
     }
   }
 
+  function closeOptionsPanel() {
+    optPanel.setAttribute("hidden", "true");
+  }
+
   function constructParameter() {
     const message = msgArea.value;
     const expires = document.getElementById("expires").value;
@@ -248,10 +258,55 @@ $count = $visitor_increment();
     return result;
   }
 
-  function logSelectedOptions() {
-    /* console.log(options); */
-    const parameterizedOptions = constructParameter();
-    console.log(parameterizedOptions);
+  function swapMessageAreaWithResponse(response = {
+    uuid: string,
+    expires: string | number,
+    writer: string,
+    reader: string,
+    writer_email: string,
+    reader_email: string,
+  }) {
+    // Validate response
+    let invalid = false;
+    try {
+      if (typeof response.uuid != "string") {
+        throw new Error("Something went really wrong 😩");
+      }
+    } catch (err) {
+      invalid = err.message;
+    }
+
+    if (invalid) {
+      toast.shout(invalid, false);
+    }
+
+    // Constants
+    const linkURL = `<?php echo SITE_DOMAIN; ?>/${response.uuid}`;
+    const timeUnits = 24 < response.expires ? "days" : "hours";
+    const timeQuantity = 24 < response.expires ? response.expires / 24 : response.expires;
+    const responseDiv = document.createElement("div")
+
+    // Create and populate response element
+    responseDiv.setAttribute("id", "response")
+    responseDiv.innerHTML = `
+      <p>${linkURL}</p>
+      <p>🔐 Your message has been encrypted and stored.</p>
+      <p>⏱️ It will expire in ${timeQuantity} ${timeUnits}.</p>
+      <p>🔗 Click the button below to copy the link!</p>
+    `;
+
+    // Swap element & Modify Views
+    closeOptionsPanel();
+    document.getElementById("sub-panel").remove();
+    document.getElementById("msg-panel").replaceChild(responseDiv, msgArea);
+
+    // Modify button
+    sendButton.innerText = "Copy Link"
+    sendButton.removeEventListener("click", sendMessage);
+    sendButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(linkURL);
+      toast.shout("Link Copied!");
+    });
   }
 </script>
 
