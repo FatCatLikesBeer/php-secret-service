@@ -161,7 +161,7 @@ $count = $visitor_increment();
   //    Interaction Assignments
   //******************************
   msgArea.addEventListener("input", respondToMessageAreaInteraction);
-  sendButton.addEventListener("click", logSelectedOptions);
+  sendButton.addEventListener("click", sendMessage);
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
   });
@@ -171,9 +171,11 @@ $count = $visitor_increment();
   //    Function Definitions
   //******************************
   async function sendMessage() {
-    const messageValue = msgArea.value;
+    const parameterizedOptions = constructParameter();
+    const fullURI = `${apiURL}?${parameterizedOptions}`;
+    console.log(fullURI);
     try {
-      const request = await fetch(`${apiURL}?message=${messageValue}`, {
+      const request = await fetch(fullURI, {
         method: "POST"
       });
       if (!request.ok) {
@@ -216,15 +218,20 @@ $count = $visitor_increment();
     }
   }
 
-  function constructParameter(values = {
-    message: string,
-    writer: string,
-    reader: string,
-    writer_email: string,
-    reader_email: string,
-    key: string,
-    expires: string,
-  }) {
+  function constructParameter() {
+    const message = msgArea.value;
+    const expires = document.getElementById("expires").value;
+    const writer = returnNullIfEmpty(document.getElementById("writer").value)
+    const reader = returnNullIfEmpty(document.getElementById("reader").value)
+    const key = returnNullIfEmpty(document.getElementById("passkey").value)
+    const values = {
+      message,
+      expires,
+      writer,
+      reader,
+      key
+    }
+
     let result = "";
     const valueKeys = Object.keys(values);
     valueKeys.forEach((key, i, arr) => {
@@ -242,20 +249,8 @@ $count = $visitor_increment();
   }
 
   function logSelectedOptions() {
-    const message = msgArea.value;
-    const expires = document.getElementById("expires").value;
-    const writer = returnNullIfEmpty(document.getElementById("writer").value)
-    const reader = returnNullIfEmpty(document.getElementById("reader").value)
-    const key = returnNullIfEmpty(document.getElementById("passkey").value)
-    const options = {
-      message,
-      expires,
-      writer,
-      reader,
-      key
-    }
     /* console.log(options); */
-    const parameterizedOptions = constructParameter(options);
+    const parameterizedOptions = constructParameter();
     console.log(parameterizedOptions);
   }
 </script>
