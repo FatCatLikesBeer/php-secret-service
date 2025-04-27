@@ -153,17 +153,19 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
 
     // Verifiy expired
     if ($check_if_exists["expired"] != "0") {
-      throw new Exception("Message expired.", 410);
+      throw new Exception("Envelope expired.", 410);
     }
 
     // Verify opened
     if ($check_if_exists["opened"] != "0") {
-      throw new Exception("Message already opened.", 410);
+      throw new Exception("Envelope already opened.", 410);
     }
 
     // Validate passkey
-    if ($check_if_exists["passkey_hash"] != hash("sha256", $passkey)) {
-      throw new Exception("Key invalid.", 401);
+    if ($passkey) {
+      if ($check_if_exists["passkey_hash"] != hash("sha256", $passkey)) {
+        throw new Exception("Key invalid.", 401);
+      }
     }
 
     // Retrieve Data
@@ -175,6 +177,7 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $message->data["letter"] = $letter;
     $message->message = "Letter content";
     $message->code = 200;
+    $message->success = true;
 
     // Set letter as opened
     $db->prepare($queries["unseal_envelope"])->execute([time(), $uuid]);

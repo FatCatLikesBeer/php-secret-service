@@ -1,9 +1,17 @@
 <?php
 include_once(__DIR__ . "/../models/database.php");
-/* const SITE_NAME = "Project Flight"; */
 $count = $visitor_increment();
-// TODO: Change view on succccessful response
-// TODO: Create tests
+$request_uri = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
+$uri = rtrim($request_url, '/');
+$uuid = 8 < strlen($uri) ? explode("/", $uri)[2] : false;
+if ($uuid) {
+  if (strlen($uuid) != 16) {
+    global $site_domain;
+    header("Location: {$site_domain}");
+    exit;
+  } else include(__DIR__ . "/message.php");
+  exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +31,11 @@ $count = $visitor_increment();
       display: flex;
       flex-direction: row-reverse;
       justify-content: space-between;
+    }
+
+    #control-sub-panel {
+      display: flex;
+      flex-direction: column;
     }
 
     textarea {
@@ -60,11 +73,6 @@ $count = $visitor_increment();
       color: var(--pico-muted-color);
     }
 
-    #sub-panel {
-      display: flex;
-      flex-direction: column;
-    }
-
     label {
       min-width: 4rem;
     }
@@ -82,7 +90,9 @@ $count = $visitor_increment();
   <div class="container" id="app">
     <div>
       <div id="title-bar">
-        <h1><?php echo SITE_NAME; ?></h1>
+        <a href="/">
+          <h1><?php echo SITE_NAME; ?></h1>
+        </a>
       </div>
       <div id="msg-panel">
         <textarea id="msg-area" maxlength="400" rows="10"></textarea>
@@ -115,7 +125,7 @@ $count = $visitor_increment();
           <button type="button" id="snd-button" disabled>
             Save Message
           </button>
-          <div id="sub-panel">
+          <div id="control-sub-panel">
             <span id="full-count"><span id="char-count">0</span> / 400</span>
             <a id="options-button">Options</a>
           </div>
@@ -134,7 +144,7 @@ $count = $visitor_increment();
   //******************************
   const apiURL = "/api/v0/messages";
   const msgArea = document.getElementById("msg-area");
-  const sendButton = document.getElementById("snd-button");
+  const interactButton = document.getElementById("snd-button");
   const optButton = document.getElementById("options-button");
   const charCount = document.getElementById("char-count");
   const fullCount = document.getElementById("full-count");
@@ -168,8 +178,8 @@ $count = $visitor_increment();
   //    Interaction Assignments
   //******************************
   msgArea.addEventListener("input", respondToMessageAreaInteraction);
-  sendButton.addEventListener("click", sendMessage);
   optButton.addEventListener("click", toggleOptionsPanel);
+  interactButton.addEventListener("click", sendMessage);
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
   });
@@ -209,9 +219,9 @@ $count = $visitor_increment();
       fullCount.style.removeProperty("var(--pico-color)");
     }
     if (0 === length) {
-      sendButton.setAttribute("disabled", "true");
+      interactButton.setAttribute("disabled", "true");
     } else {
-      sendButton.removeAttribute("disabled");
+      interactButton.removeAttribute("disabled");
     }
   }
 
@@ -227,6 +237,7 @@ $count = $visitor_increment();
   function closeOptionsPanel() {
     optPanel.setAttribute("hidden", "true");
   }
+
 
   function constructParameter() {
     const message = msgArea.value;
@@ -281,7 +292,7 @@ $count = $visitor_increment();
     }
 
     // Constants
-    const linkURL = `<?php echo SITE_DOMAIN; ?>/${response.uuid}`;
+    const linkURL = `<?php echo SITE_DOMAIN; ?>/message/${response.uuid}`;
     const timeUnits = 24 < response.expires ? "days" : "hours";
     const timeQuantity = 24 < response.expires ? response.expires / 24 : response.expires;
     const responseDiv = document.createElement("div")
@@ -297,13 +308,13 @@ $count = $visitor_increment();
 
     // Swap element & Modify Views
     closeOptionsPanel();
-    document.getElementById("sub-panel").remove();
+    document.getElementById("control-sub-panel").remove();
     document.getElementById("msg-panel").replaceChild(responseDiv, msgArea);
 
     // Modify button
-    sendButton.innerText = "Copy Link"
-    sendButton.removeEventListener("click", sendMessage);
-    sendButton.addEventListener("click", () => {
+    interactButton.innerText = "Copy Link"
+    interactButton.removeEventListener("click", sendMessage);
+    interactButton.addEventListener("click", () => {
       navigator.clipboard.writeText(linkURL);
       toast.shout("Link Copied!");
     });

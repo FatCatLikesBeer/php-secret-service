@@ -2,14 +2,19 @@
 
 declare(strict_types=1);
 
-include_once('./router.php');
-
 const SITE_NAME = "Project Flight";
 const SITE_DOMAIN = "http://localhost:8000";
+$site_domain = SITE_DOMAIN;
+
+include_once('./router.php');
 
 // Views Go Here
 get("/", "./views/index.php");
-get("/messages", "./views/index.php");
+get("/message", function () use ($site_domain) {
+  header("Location: {$site_domain}");
+  exit;
+});
+get('/message/$request_uuid', "./views/index.php");
 
 include('./controllers/controller.php');
 include('./lib/classes.php');
@@ -137,11 +142,18 @@ get('/api/v0/messages/$uuid/read', function ($uuid) use ($key) {
   }
 });
 
-get('/api/v0', function () {
-  route_not_used();
-});
-
 get('/api/v0/visitor-count', function () {
   $count = get_visitor_count();
   new Response("Visitor Count", true, 200, ["count" => $count])->sendJSON();
 });
+
+get('/api/v0', function () {
+  route_not_used();
+});
+
+get('/api', function () {
+  route_not_used();
+});
+
+// 404
+include_once "./views/404.php";
