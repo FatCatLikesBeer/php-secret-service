@@ -53,6 +53,16 @@ if ($columns) {
   <link href="/css/style.css" rel="stylesheet">
   <link href="/css/color.style.css" rel="stylesheet">
   <style>
+    #title-bar {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .logo-link {
+      align-self: center;
+    }
+
     a {
       text-decoration: none;
     }
@@ -103,6 +113,7 @@ if ($columns) {
         <a href="/">
           <h1><?php echo SITE_NAME; ?></h1>
         </a>
+        <?php include(__DIR__ . "/ghlogo.html") ?>
       </div>
       <div id="msg-panel">
         <div id="content-area">

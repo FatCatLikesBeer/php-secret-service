@@ -12,6 +12,7 @@ if ($uuid) {
   } else include(__DIR__ . "/message.php");
   exit;
 }
+// TODO: Twitter Card & OpenGraph
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +24,16 @@ if ($uuid) {
   <link href="/css/style.css" rel="stylesheet">
   <link href="/css/color.style.css" rel="stylesheet">
   <style>
+    #title-bar {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .logo-link {
+      align-self: center;
+    }
+
     a {
       text-decoration: none;
     }
@@ -93,6 +104,7 @@ if ($uuid) {
         <a href="/">
           <h1><?php echo SITE_NAME; ?></h1>
         </a>
+        <?php include(__DIR__ . "/ghlogo.html") ?>
       </div>
       <div id="msg-panel">
         <textarea id="msg-area" maxlength="400" rows="10"></textarea>
