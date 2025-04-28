@@ -56,7 +56,7 @@ if ($columns) {
 
 <head>
   <meta charset="UTF-8">
-  <meta charset="UTF-8" />
+  <meta name="description" content="Easily save private, encrypted, self-destructing messages in the cloud. Add a passkey, sender and reader names, and set messages to self-destruct after opening or a chosen time. Safe, simple, and secure!" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="<?php echo $description ?? SITE_NAME; ?>" />
@@ -97,9 +97,12 @@ if ($columns) {
     }
 
     #toast {
+      position: fixed;
+      bottom: 1rem;
       padding: 0.8rem;
       border: var(--pico-color-green-300) var(--pico-border-width) solid;
       border-radius: var(--pico-border-radius);
+      background-color: var(--pico-background-color);
     }
 
     #app {
@@ -120,6 +123,24 @@ if ($columns) {
       border-radius: var(--pico-border-radius);
       padding: 0.8rem;
       margin-bottom: 1.2rem;
+    }
+
+    .logo-link {
+      margin-bottom: 0.7rem !important;
+      margin-right: 0.2rem !important;
+      color: var(--pico-color-primary) !important;
+    }
+
+    #reference {
+      margin-top: 9rem;
+    }
+
+    .summary-copy {
+      padding: 0 1rem;
+    }
+
+    .should-be-link {
+      cursor: pointer;
     }
   </style>
 </head>
@@ -154,6 +175,7 @@ if ($columns) {
     <div id="toast" class="container" hidden>
       <span id="toast-emoji">✅</span> <span id="toast-message">stuff</span>
     </div>
+    <?php include(__DIR__ . "/reference.html"); ?>
   </div>
 </body>
 

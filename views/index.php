@@ -12,14 +12,15 @@ if ($uuid) {
   } else include(__DIR__ . "/message.php");
   exit;
 }
-// TODO: Twitter Card & OpenGraph
 // TODO: Layouts for different sccreen sizes
+// TODO: Sitemap and robots.txt
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="description" content="Easily save private, encrypted, self-destructing messages in the cloud. Add a passkey, sender and reader names, and set messages to self-destruct after opening or a chosen time. Safe, simple, and secure!" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="<?php echo SITE_NAME; ?>" />
@@ -65,9 +66,12 @@ if ($uuid) {
     }
 
     #toast {
+      position: fixed;
+      bottom: 1rem;
       padding: 0.8rem;
       border: var(--pico-color-green-300) var(--pico-border-width) solid;
       border-radius: var(--pico-border-radius);
+      background-color: var(--pico-background-color);
     }
 
     #app {
@@ -111,6 +115,24 @@ if ($uuid) {
       justify-content: center;
       margin-bottom: 0.5rem;
     }
+
+    .logo-link {
+      margin-bottom: 0.7rem !important;
+      margin-right: 0.2rem !important;
+      color: var(--pico-color-primary) !important;
+    }
+
+    #reference {
+      margin-top: 8rem;
+    }
+
+    .summary-copy {
+      padding: 0 1rem;
+    }
+
+    .should-be-link {
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -126,7 +148,7 @@ if ($uuid) {
       <div id="msg-panel">
         <textarea id="msg-area" maxlength="400" rows="10" placeholder="📝 Write your message here! 💥 It will self-destruct when opened or after 24 hours, which ever comes first. 📋 Check out more options below."></textarea>
         <div id="options-panel" hidden="true">
-          <div id="chevron">
+          <div id="chevron" class="should-be-link">
             <?php include(__DIR__ . "/chevron.html"); ?>
           </div>
           <div>
@@ -159,7 +181,7 @@ if ($uuid) {
           </button>
           <div id="control-sub-panel">
             <span id="full-count"><span id="char-count">0</span> / 400</span>
-            <a id="options-button">Options</a>
+            <a id="options-button" class="should-be-link">Options</a>
           </div>
         </div>
       </div>
@@ -167,6 +189,7 @@ if ($uuid) {
     <div id="toast" class="container" hidden>
       <span id="toast-emoji">✅</span> <span id="toast-message">stuff</span>
     </div>
+    <?php include(__DIR__ . "/reference.html"); ?>
   </div>
 </body>
 

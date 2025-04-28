@@ -1,0 +1,4 @@
+#robots.txt for flight.billlaaayyy.dev
+
+User-Agent: *
+Allow: /
