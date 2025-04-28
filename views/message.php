@@ -26,18 +26,26 @@ if ($columns) {
   $message .= $to ? "<p>To: {$to}</p>" : $to;
   $message .= $from ? "<p>From: {$from}</p>" : $from;
 
+  // OG & TwitterCard
+  $description = null;
+  if ($to) {
+    $description = SITE_NAME . " | Hello {$to}, someone has a message for you.";
+  }
+  if ($from) {
+    $description = SITE_NAME . " | Hello, {$from} has a message for you.";
+  }
+  if ($to && $from) {
+    $description = SITE_NAME . " | " . "Hello {$to}, {$from} has a message for you.";
+  }
   if (!$message) {
     $message = "Someone sent you a message.";
   }
-
   if ($expired) {
     $message = "<span id='msg'>Message <strong>expired</strong> and <strong>never</strong> opened.</span>";
   }
-
   if ($opened) {
     $message = "<span id='msg'>Message <span id='opened'></span></span>";
   }
-
   if ($expired && $opened) {
     $message = "<span id='msg'>Message <strong>expired</strong> and <span id='opened'></span></span>";
   }
@@ -48,7 +56,17 @@ if ($columns) {
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="<?php echo $description ?? SITE_NAME; ?>" />
+  <meta name="twitter:description" content="<?php echo SITE_DESCRIPTION; ?>" />
+  <meta name="twitter:image" content="/assets/placeholder_graphic.jpg" />
+  <meta name="og:type" content="website" />
+  <meta name="og:title" content="<?php echo $description ?? SITE_NAME; ?>" />
+  <meta name="og:description" content="<?php echo SITE_DESCRIPTION; ?>" />
+  <meta name="og:url" content="<?php echo SITE_DOMAIN; ?>" />
+  <meta name="og:image" content="/assets/placeholder_graphic.jpg" />
   <title><?php echo SITE_NAME; ?></title>
   <link href="/css/style.css" rel="stylesheet">
   <link href="/css/color.style.css" rel="stylesheet">

@@ -13,16 +13,26 @@ if ($uuid) {
   exit;
 }
 // TODO: Twitter Card & OpenGraph
+// TODO: Layouts for different sccreen sizes
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="<?php echo SITE_NAME; ?>" />
+  <meta name="twitter:description" content="<?php echo SITE_DESCRIPTION; ?>" />
+  <meta name="twitter:image" content="/assets/placeholder_graphic.jpg" />
+  <meta name="og:type" content="website" />
+  <meta name="og:title" content="<?php echo SITE_NAME; ?>" />
+  <meta name="og:description" content="<?php echo SITE_DESCRIPTION; ?>" />
+  <meta name="og:url" content="<?php echo SITE_DOMAIN; ?>" />
+  <meta name="og:image" content="/assets/placeholder_graphic.jpg" />
   <title><?php echo SITE_NAME; ?></title>
-  <link href="/css/style.css" rel="stylesheet">
-  <link href="/css/color.style.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="/css/color.style.css" rel="stylesheet" />
   <style>
     #title-bar {
       display: flex;
@@ -94,6 +104,13 @@ if ($uuid) {
       padding: 0.8rem;
       margin-bottom: 1.2rem;
     }
+
+    #chevron {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 
@@ -107,8 +124,11 @@ if ($uuid) {
         <?php include(__DIR__ . "/ghlogo.html") ?>
       </div>
       <div id="msg-panel">
-        <textarea id="msg-area" maxlength="400" rows="10"></textarea>
+        <textarea id="msg-area" maxlength="400" rows="10" placeholder="📝 Write your message here! 💥 It will self-destruct when opened or after 24 hours, which ever comes first. 📋 Check out more options below."></textarea>
         <div id="options-panel" hidden="true">
+          <div id="chevron">
+            <?php include(__DIR__ . "/chevron.html"); ?>
+          </div>
           <div>
             <label for="expires">Time to Expire</label>
             <select id="expires">
@@ -161,6 +181,7 @@ if ($uuid) {
   const charCount = document.getElementById("char-count");
   const fullCount = document.getElementById("full-count");
   const optPanel = document.getElementById("options-panel");
+  const chevron = document.getElementById("chevron");
   const charCountBreakpoints = [360, 390];
   const toast = {
     container: document.getElementById("toast"),
@@ -191,6 +212,7 @@ if ($uuid) {
   //******************************
   msgArea.addEventListener("input", respondToMessageAreaInteraction);
   optButton.addEventListener("click", toggleOptionsPanel);
+  chevron.addEventListener("click", toggleOptionsPanel);
   interactButton.addEventListener("click", sendMessage);
   toast.emoji.addEventListener("click", () => {
     toast.closeToast();
