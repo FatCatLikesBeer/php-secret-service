@@ -1,4 +1,4 @@
-RewriteEngine On
+RewriteEngine ON
 
 RewriteCond %{REQUEST_URI}  !(\.png|\.jpg|\.webp|\.gif|\.jpeg|\.zip|\.css|\.svg|\.js|\.pdf|\.ico)$
 RewriteRule ^(.*)$ /index.php [QSA,L]
