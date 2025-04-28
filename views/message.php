@@ -152,7 +152,6 @@ if ($columns) {
         <a href="/">
           <h1><?php echo SITE_NAME; ?></h1>
         </a>
-        <?php include(__DIR__ . "/ghlogo.html") ?>
       </div>
       <div id="msg-panel">
         <div id="content-area">

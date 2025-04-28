@@ -143,10 +143,13 @@ if ($uuid) {
         <a href="/">
           <h1><?php echo SITE_NAME; ?></h1>
         </a>
-        <?php include(__DIR__ . "/ghlogo.html") ?>
       </div>
       <div id="msg-panel">
-        <textarea id="msg-area" maxlength="400" rows="10" placeholder="📝 Write your message here! 💥 It will self-destruct when opened or after 24 hours, which ever comes first. 📋 Check out more options below."></textarea>
+        <textarea id="msg-area" maxlength="400" rows="10" placeholder=" ☁️ This is a self-destructing message service.
+📝 Write your message here! We'll send you a link to view it.
+💥 The message will self-destruct when opened or after 24 hours, which ever comes first.
+🔐 Add a passkey for extra peace of mind.
+📋 Check out more options below."></textarea>
         <div id="options-panel" hidden="true">
           <div id="chevron" class="should-be-link">
             <?php include(__DIR__ . "/chevron.html"); ?>

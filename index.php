@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 const SITE_NAME = "Project Flight";
 const SITE_DOMAIN = "http://localhost:8000";
+const SITE_TAGLINE = "Self-destructing message service";
 const SITE_DESCRIPTION = "Self Destructing Message Service";
 $site_domain = SITE_DOMAIN;
 
