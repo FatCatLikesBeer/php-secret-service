@@ -103,6 +103,9 @@ if ($columns) {
       border: var(--pico-color-green-300) var(--pico-border-width) solid;
       border-radius: var(--pico-border-radius);
       background-color: var(--pico-background-color);
+      width: 93svw;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     #app {
