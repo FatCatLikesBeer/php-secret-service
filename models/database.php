@@ -24,7 +24,7 @@ $queries = [
   "check_if_envelope_exists" => "SELECT created_at, opened, expired, reader, passkey_hash, writer FROM envelopes WHERE uuid = ?",
   "return_all_values" => "SELECT * FROM envelopes WHERE uuid = ?",
   "unseal_envelope" => "UPDATE envelopes SET opened = ?, letter = null WHERE uuid = ?",
-  "expire_envelopes" => "UPDATE envelopes SET expired = 1 WHERE expires < ?",
+  "expire_envelopes" => "UPDATE envelopes SET expired = 1, letter = null WHERE expires < ?",
   "create_envelope" => "
     INSERT INTO envelopes
     (uuid, writer, writer_email, reader, reader_email, created_at, expires, passkey_hash, letter)

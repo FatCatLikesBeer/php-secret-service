@@ -1,7 +1,5 @@
 <?php
 
-// TODO: Implement sending encryption key with link
-
 declare(strict_types=1);
 
 const SITE_NAME = "Project Flight";
