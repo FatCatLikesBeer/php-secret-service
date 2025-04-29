@@ -75,8 +75,9 @@ class UnsafeCrypto
    * @param string $key Encryption key
    * @return string
    */
-  public static function encrypt(string $message, string $key)
+  public static function encrypt(string $message)
   {
+    $key = encryption_key_generator();
     $nonce_size = openssl_cipher_iv_length(self::METHOD);
     $nonce = openssl_random_pseudo_bytes($nonce_size);
 
@@ -88,7 +89,7 @@ class UnsafeCrypto
       $nonce,
     );
 
-    return base64_encode($nonce . $cipher_text);
+    return base64_encode($nonce . $cipher_text) . ":{$key}";
   }
 
   /**

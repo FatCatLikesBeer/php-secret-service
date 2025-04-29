@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Implement sending encryption key with link
+
 declare(strict_types=1);
 
 const SITE_NAME = "Project Flight";
@@ -21,6 +23,7 @@ get('/message/$request_uuid', "./views/index.php");
 include('./controllers/controller.php');
 include('./lib/classes.php');
 include('./lib/uuid_generator.php');
+include('./lib/encryption_key_generator.php');
 include('./models/database.php');
 
 $writer = $_GET["writer"] ?? NULL;
@@ -155,6 +158,15 @@ get('/api/v0', function () {
 
 get('/api', function () {
   route_not_used();
+});
+
+get('/api/v0/test', function () {
+  for ($i = 0; $i < 200; $i++) {
+    $result = UnsafeCrypto::encrypt("what what, in the butt");
+    $parts = explode(":", $result);
+    $message = UnsafeCrypto::decrypt($parts[0], $parts[1]);
+    echo "<p>" . $message . " - " . $result . "</p>";
+  }
 });
 
 // 404
