@@ -158,14 +158,5 @@ get('/api', function () {
   route_not_used();
 });
 
-get('/api/v0/test', function () {
-  for ($i = 0; $i < 200; $i++) {
-    $result = UnsafeCrypto::encrypt("what what, in the butt");
-    $parts = explode(":", $result);
-    $message = UnsafeCrypto::decrypt($parts[0], $parts[1]);
-    echo "<p>" . $message . " - " . $result . "</p>";
-  }
-});
-
 // 404
 include_once "./views/404.php";
