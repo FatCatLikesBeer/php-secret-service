@@ -158,10 +158,7 @@ get('/api', function () {
   route_not_used();
 });
 
-get('/test',  function () {
-  $domain = $_SERVER["HTTP_HOST"];
-  echo $domain;
-});
+get('/test',  "./views/test.php");
 
 // 404
 include_once "./views/404.php";
