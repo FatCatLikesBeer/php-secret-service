@@ -58,11 +58,11 @@ function case_picker(string $word): string
 function uuid_generator(): string
 {
   include(__DIR__ . "/../lib/words.php");
+  $result = "";
   $length = count($words);
   $head_word = $words[rand(0, $length - 1)];
   $tail_word = $words[rand(0, $length - 1)];
   $structure = rand(0, 3);
-  $result = "";
 
   // Select and cast it
   $head = case_picker($head_word);

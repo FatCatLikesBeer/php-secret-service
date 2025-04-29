@@ -3,9 +3,10 @@ include_once(__DIR__ . "/../models/database.php");
 $count = $visitor_increment();
 $request_uri = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
 $uri = rtrim($request_url, '/');
-$uuid = 8 < strlen($uri) ? explode("/", $uri)[2] : false;
-if ($uuid) {
-  if (strlen($uuid) != 16) {
+$uuid_key = 8 < strlen($uri) ? explode("/", $uri)[2] : false;
+[$uuid] = explode(":", $uuid_key);
+if ($uuid_key) {
+  if (strlen($uuid_key) != 23) {
     global $site_domain;
     header("Location: {$site_domain}");
     exit;

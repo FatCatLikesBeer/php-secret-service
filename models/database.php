@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-$env_key = getenv("PHP_CRYPTO_KEY");
 
 $db = new PDO(dsn: "sqlite:" . __DIR__ . "/../models/my_base.sqlite");
 
@@ -71,16 +70,15 @@ function envelope_to_database(
 ): InternalMessage {
   global $db;
   global $queries;
-  global $env_key;
   try {
-    $letter = UnsafeCrypto::encrypt($message, $env_key);
+    [$letter, $key] = UnsafeCrypto::encrypt($message);
     $passkey_hash = !is_null($passkey) ? hash("sha256", $passkey) : $passkey;
     $created_at = time();
     $expires_at = $created_at + (intval($expires) * 60 * 60);
     $stmt = $db->prepare($queries["create_envelope"]);
     $stmt->execute([$uuid, $writer, $writer_email, $reader, $reader_email, $created_at, $expires_at, $passkey_hash, $letter]);
     $stmt->fetch();
-    return new InternalMessage(true, "Message saved!");
+    return new InternalMessage(true, "Message saved!", ["uuid" => "{$uuid}:{$key}"]);
   } catch (Exception $err) {
     return new InternalMessage(false, "Database Error: {$err}");
   }
@@ -88,15 +86,16 @@ function envelope_to_database(
 
 /**
  * Checks if envelope with uuid exists
- * @param string $uuid UUID of envelope
+ * @param string $uuid_key UUID & key of envelope
  * @return InternalMessage
  */
 function check_if_envelope_exists(
-  string $uuid,
+  string $uuid_key,
 ): InternalMessage {
   global $db;
   global $queries;
   try {
+    [$uuid] = explode(":", $uuid_key);
     $stmt = $db->prepare($queries["check_if_envelope_exists"]);
     $stmt->execute([$uuid]);
     $column = $stmt->fetch();
@@ -104,12 +103,12 @@ function check_if_envelope_exists(
       throw new Exception("Envelope not found.");
     }
     $data = [
+      "created_at" => $column["created_at"],
       "opened" => intval($column["opened"]),
-      "locked" => !is_null($column["passkey_hash"]),
       "expired" => $column["expired"] == "0" ? false : true,
+      "locked" => !is_null($column["passkey_hash"]),
       "reader" => $column["reader"],
       "writer" => $column["writer"],
-      "created_at" => $column["created_at"],
     ];
     return new InternalMessage(true, "Envelope Found.", $data);
   } catch (Exception $err) {
@@ -120,17 +119,19 @@ function check_if_envelope_exists(
 /**
  * Returns contents of envelope (letter), sets opened to 1,
  * sets expired to 1, deletes content (letter).
- * @param stirng $uuid UUID of envelope
+ * @param string $uuid_key UUID & key of envelope
  * @param string|null $passkey Key to retrieve content (letter)
  * @return InternalMessage
  */
-function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
+function unseal_envelope(string $uuid_key, string|null $passkey): InternalMessage
 {
   $message = new InternalMessage(false, "Unknown Server Error", code: 500);
   global $db;
   global $queries;
-  global $env_key;
   try {
+    // Separate uuid & key
+    [$uuid, $key] = explode(":", $uuid_key);
+
     // Check if envelope exists
     $stmt_check = $db->prepare($queries["check_if_envelope_exists"]);
     $stmt_check->execute([$uuid]);
@@ -173,7 +174,7 @@ function unseal_envelope(string $uuid, string|null $passkey): InternalMessage
     $stmt->execute([$uuid]);
     $columns = $stmt->fetch();
     $encrypted_letter = $columns["letter"];
-    $letter = UnsafeCrypto::decrypt($encrypted_letter, $env_key);
+    $letter = UnsafeCrypto::decrypt($encrypted_letter, $key);
     $message->data["letter"] = $letter;
     $message->message = "Letter content";
     $message->code = 200;

@@ -108,10 +108,10 @@ post('/api/v0/messages', function () use (
       'writer_email' => $writer_email,
       'reader_email' => $reader_email,
       'expires' => intval($expires),
-      "uuid" => $result->message
+      "uuid" => $result->data["uuid"],
     ];
 
-    new Response("Message Saved!", true, 200, $data)->sendJSON();
+    new Response($result->message, true, 200, $data)->sendJSON();
   } catch (Exception $err) {
     new Response($err->getMessage(), false, $err->getCode())->sendJSON();
   }
@@ -119,7 +119,7 @@ post('/api/v0/messages', function () use (
 
 get('/api/v0/messages/$uuid', function ($uuid) {
   try {
-    if (16 != strlen($uuid)) {
+    if (23 != strlen($uuid)) {
       throw new Exception("Invalid message ID", 400);
     }
 

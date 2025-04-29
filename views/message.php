@@ -185,7 +185,7 @@ if ($columns) {
   //******************************
   //    Variables
   //******************************
-  const apiURL = "/api/v0/messages/<?php echo $uuid; ?>/read";
+  const apiURL = "/api/v0/messages/<?php echo $uuid_key; ?>/read";
   const interactButton = document.getElementById("snd-button");
   const contentArea = document.getElementById("content-area");
   <?php if ($passkey) { ?>

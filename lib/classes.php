@@ -89,7 +89,7 @@ class UnsafeCrypto
       $nonce,
     );
 
-    return base64_encode($nonce . $cipher_text) . ":{$key}";
+    return [base64_encode($nonce . $cipher_text), $key];
   }
 
   /**

@@ -44,17 +44,17 @@ function address_envelope(
     expires: $expires,
     message: $message,
   );
-  return new InternalMessage($result->success, $result->success ? $uuid : $result->message);
+  return $result;
 }
 
 /**
  * Retrieves envelope from database
- * @param string $uuid UUID of envelope
+ * @param string $uuid_key UUID of envelope
  * @return InternalMessage - Internal messaging object
  */
-function get_envelope(string $uuid): InternalMessage
+function get_envelope(string $uuid_key): InternalMessage
 {
-  $result = check_if_envelope_exists($uuid);
+  $result = check_if_envelope_exists($uuid_key);
   return new InternalMessage($result->success, $result->message, $result->data ?? null);
 }
 
@@ -67,7 +67,7 @@ function get_envelope(string $uuid): InternalMessage
 function get_letter(string $uuid, string|null $passkey): InternalMessage
 {
   $result = unseal_envelope(
-    uuid: $uuid,
+    uuid_key: $uuid,
     passkey: $passkey,
   );
   return new InternalMessage($result->success, $result->message, $result->data ?? null, $result->code);
