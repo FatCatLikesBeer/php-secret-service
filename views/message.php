@@ -65,7 +65,7 @@ if ($columns) {
   <meta name="og:type" content="website" />
   <meta name="og:title" content="<?php echo $description ?? SITE_NAME; ?>" />
   <meta name="og:description" content="<?php echo SITE_DESCRIPTION; ?>" />
-  <meta name="og:url" content="<?php echo SITE_DOMAIN; ?>" />
+  <meta name="og:url" content="<?php echo $site_domain; ?>" />
   <meta name="og:image" content="/assets/placeholder_graphic.jpg" />
   <title><?php echo SITE_NAME; ?></title>
   <link href="/css/style.css" rel="stylesheet">

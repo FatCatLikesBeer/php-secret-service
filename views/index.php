@@ -1,5 +1,6 @@
 <?php
 include_once(__DIR__ . "/../models/database.php");
+$site_domain = $_SERVER["HTTP_HOST"];
 $count = $visitor_increment();
 $request_uri = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
 $uri = rtrim($request_url, '/');
@@ -30,7 +31,7 @@ if ($uuid_key) {
   <meta name="og:type" content="website" />
   <meta name="og:title" content="<?php echo SITE_NAME; ?>" />
   <meta name="og:description" content="<?php echo SITE_DESCRIPTION; ?>" />
-  <meta name="og:url" content="<?php echo SITE_DOMAIN; ?>" />
+  <meta name="og:url" content="<?php echo $site_domain; ?>" />
   <meta name="og:image" content="/assets/placeholder_graphic.jpg" />
   <title><?php echo SITE_NAME; ?></title>
   <link href="/css/style.css" rel="stylesheet" />
@@ -356,7 +357,7 @@ if ($uuid_key) {
     }
 
     // Constants
-    const linkURL = `<?php echo SITE_DOMAIN; ?>/message/${response.uuid}`;
+    const linkURL = `<?php echo $site_domain; ?>/message/${response.uuid}`;
     const timeUnits = 24 < response.expires ? "days" : "hours";
     const timeQuantity = 24 < response.expires ? response.expires / 24 : response.expires;
     const responseDiv = document.createElement("div")

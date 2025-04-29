@@ -6,7 +6,7 @@ const SITE_NAME = "Project Flight";
 const SITE_DOMAIN = "http://localhost:8000";
 const SITE_TAGLINE = "Self-destructing message service";
 const SITE_DESCRIPTION = "Self Destructing Message Service";
-$site_domain = SITE_DOMAIN;
+$site_domain = $_SERVER["HTTP_HOST"];
 
 include_once('./router.php');
 
@@ -156,6 +156,11 @@ get('/api/v0', function () {
 
 get('/api', function () {
   route_not_used();
+});
+
+get('/test',  function () {
+  $domain = $_SERVER["HTTP_HOST"];
+  echo $domain;
 });
 
 // 404
