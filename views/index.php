@@ -94,7 +94,18 @@ if ($uuid_key) {
       justify-content: space-around;
     }
 
-    #options-panel>div {
+    #options-panel-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+
+    .options-panel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .options-panel-item>div {
       display: flex;
       flex-direction: row;
     }
@@ -138,6 +149,12 @@ if ($uuid_key) {
     .should-be-link {
       cursor: pointer;
     }
+
+    @media (max-width: 48rem) {
+      #options-panel-content {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -159,28 +176,34 @@ if ($uuid_key) {
           <div id="chevron" class="should-be-link">
             <?php include(__DIR__ . "/chevron.html"); ?>
           </div>
-          <div>
-            <label for="expires">Time to Expire</label>
-            <select id="expires">
-              <option value="6">6 Hours</option>
-              <option value="8">8 Hours</option>
-              <option value="12">12 Hours</option>
-              <option value="24" selected>1 Day</option>
-              <option value="36">3 Days</option>
-              <option value="168">7 Days</option>
-            </select>
-          </div>
-          <div>
-            <label for="passkey">Pass Key:</label>
-            <input id="passkey" type="password" placeholder="none" />
-          </div>
-          <div>
-            <label for="writer">From:</label>
-            <input id="writer" type="text" placeholder="Author" />
-          </div>
-          <div>
-            <label for="reader">To:</label>
-            <input id="reader" type="text" placeholder="Recipiant" />
+          <div id="options-panel-content">
+            <div class="options-panel-item container-fluid">
+              <div>
+                <label for="expires">Time to Expire</label>
+                <select id="expires">
+                  <option value="6">6 Hours</option>
+                  <option value="8">8 Hours</option>
+                  <option value="12">12 Hours</option>
+                  <option value="24" selected>1 Day</option>
+                  <option value="36">3 Days</option>
+                  <option value="168">7 Days</option>
+                </select>
+              </div>
+              <div>
+                <label for="passkey">Pass Key:</label>
+                <input id="passkey" type="password" placeholder="none" />
+              </div>
+            </div>
+            <div class="options-panel-item container-fluid">
+              <div>
+                <label for="writer">From:</label>
+                <input id="writer" type="text" placeholder="Author" />
+              </div>
+              <div>
+                <label for="reader">To:</label>
+                <input id="reader" type="text" placeholder="Recipiant" />
+              </div>
+            </div>
           </div>
         </div>
         <div id="control-panel">
