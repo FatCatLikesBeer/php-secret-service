@@ -14,8 +14,6 @@ if ($uuid_key) {
   } else include(__DIR__ . "/message.php");
   exit;
 }
-// TODO: Layouts for different sccreen sizes
-// TODO: Sitemap and robots.txt
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,6 +151,10 @@ if ($uuid_key) {
     @media (max-width: 48rem) {
       #options-panel-content {
         flex-direction: column;
+      }
+
+      #reference {
+        margin-top: 16rem;
       }
     }
   </style>
@@ -380,7 +382,7 @@ if ($uuid_key) {
     }
 
     // Constants
-    const linkURL = `<?php echo $site_domain; ?>/message/${response.uuid}`;
+    const linkURL = `${window.location.origin}/message/${response.uuid}`;
     const timeUnits = 24 < response.expires ? "days" : "hours";
     const timeQuantity = 24 < response.expires ? response.expires / 24 : response.expires;
     const responseDiv = document.createElement("div")

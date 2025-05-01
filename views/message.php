@@ -145,6 +145,12 @@ if ($columns) {
     .should-be-link {
       cursor: pointer;
     }
+
+    @media (max-width: 48rem) {
+      #reference {
+        margin-top: 16rem;
+      }
+    }
   </style>
 </head>
 
