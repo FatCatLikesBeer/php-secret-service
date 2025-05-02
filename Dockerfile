@@ -6,8 +6,6 @@ COPY . .
 # Server engine
 RUN a2enmod rewrite
 
-RUN service apache2 restart
-
 # Clear DB
 RUN echo "" > /var/www/html/models/my_base.sqlite
 
