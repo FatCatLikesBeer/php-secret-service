@@ -43,12 +43,12 @@ $visitor_queries = [
 ];
 
 // Standard DB operations
-(function ($db, $visitor_queries, $queries) {
-  $db->exec($visitor_queries["create_table"]);
-  $db->exec($visitor_queries["create_first_row"]);
-  $db->exec($queries["create_table"]);
-  $db->prepare($queries["expire_envelopes"])->execute([time()]);
-})($db, $visitor_queries, $queries);
+echo "before";
+$db->exec($visitor_queries["create_table"]);
+$db->exec($visitor_queries["create_first_row"]);
+$db->exec($queries["create_table"]);
+$db->prepare($queries["expire_envelopes"])->execute([time()]);
+echo "after";
 
 /**
  * Create an envelope to database
