@@ -21,8 +21,5 @@ RUN chmod 666 /var/www/html/models/my_base.sqlite
 # Copy Server Config
 RUN cat ./apache2.conf > /etc/apache2/apache2.conf
 
-# Delete dotfiles
-RUN rm -r .git .gitignore .DS_Store
-
 # Expose port
 EXPOSE 80
