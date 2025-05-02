@@ -7,9 +7,6 @@ run apt install git -y
 # Server engine
 run a2enmod rewrite
 
-# Download my repo
-# run git clone "http://github.com/FatCatLikesBeer/php-secret-service"
-
 # Clear DB
 run echo "" > ./php-secret-service/models/my_base.sqlite
 
