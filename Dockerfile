@@ -10,20 +10,18 @@ run a2enmod rewrite
 # Download my repo
 # run git clone "http://github.com/FatCatLikesBeer/php-secret-service"
 
-CMD ["ls", "/"]
-
 # Clear DB
-# run echo "" > ./php-secret-service/models/my_base.sqlite
-#
-# # Copy repo to httpd server directory
-# run cp -r ./php-secret-service/* /var/www/html
-#
-# # Change permissions for DB
-# run chmod 777 /var/www/html/models/
-# run chmod 666 /var/www/html/models/my_base.sqlite
-#
-# # Copy Server Config
-# run cat ./php-secret-service/apache2.conf > /etc/apache2/apache2.conf
-#
-# # Expose port
-# expose 3000
+run echo "" > ./php-secret-service/models/my_base.sqlite
+
+# Copy repo to httpd server directory
+run cp -r ./php-secret-service/* /var/www/html
+
+# Change permissions for DB
+run chmod 777 /var/www/html/models/
+run chmod 666 /var/www/html/models/my_base.sqlite
+
+# Copy Server Config
+run cat ./php-secret-service/apache2.conf > /etc/apache2/apache2.conf
+
+# Expose port
+expose 3000
