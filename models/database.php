@@ -44,6 +44,7 @@ $visitor_queries = [
 
 // Standard DB operations
 $db->exec($visitor_queries["create_table"]);
+$db->exec($visitor_queries["create_first_row"]);
 $db->exec($queries["create_table"]);
 $db->prepare($queries["expire_envelopes"])->execute([time()]);
 
