@@ -43,12 +43,10 @@ $visitor_queries = [
 ];
 
 // Standard DB operations
-echo "before";
 $db->exec($visitor_queries["create_table"]);
 $db->exec($visitor_queries["create_first_row"]);
 $db->exec($queries["create_table"]);
 $db->prepare($queries["expire_envelopes"])->execute([time()]);
-echo "after";
 
 /**
  * Create an envelope to database
@@ -193,6 +191,8 @@ function unseal_envelope(string $uuid_key, string|null $passkey): InternalMessag
 }
 
 $visitor_increment = function () use ($db, $visitor_queries): int {
+  $db->exec($visitor_queries["create_table"]);
+  $db->exec($visitor_queries["create_first_row"]);
   $stmt = $db->prepare($visitor_queries["update_count"]);
   $stmt->execute();
   $columns = $stmt->fetch();
