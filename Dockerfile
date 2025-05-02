@@ -19,4 +19,4 @@ RUN chmod 666 /var/www/html/models/my_base.sqlite
 RUN cat ./php-secret-service/apache2.conf > /etc/apache2/apache2.conf
 
 # Expose port
-EXPose 3000
+EXPOSE 3000
