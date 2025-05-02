@@ -70,6 +70,7 @@ if ($columns) {
   <title><?php echo SITE_NAME; ?></title>
   <link href="/css/style.css" rel="stylesheet">
   <link href="/css/color.style.css" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <style>
     #title-bar {
       display: flex;
