@@ -170,7 +170,7 @@ if ($uuid_key) {
         </a>
       </div>
       <div id="msg-panel">
-        <textarea id="msg-area" maxlength="400" rows="10" placeholder=" ☁️ This is a self-destructing message service.
+        <textarea id="msg-area" maxlength="400" rows="10" placeholder="☁️ This is a self-destructing message service.
 📝 Write your message here! We'll send you a link to view it.
 💥 The message will self-destruct when opened or after 24 hours, which ever comes first.
 🔐 Add a passkey for extra peace of mind.
